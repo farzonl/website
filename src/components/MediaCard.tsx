@@ -70,11 +70,11 @@ export default function MediaCard(props: GridItem) {
       </CardActionArea>
 
       <CardActions disableSpacing>
-        <IconButton onClick={props.likeButtonAction} aria-label="Like">
+        {(props.likeCount !== undefined) ? (<IconButton onClick={props.likeButtonAction} aria-label="Like">
           <Badge badgeContent={props.likeCount} color="primary">
             <FavoriteIcon />
           </Badge>
-        </IconButton>
+        </IconButton>) : null}
 
         <IconButton aria-label="Share">
           <ShareIcon />

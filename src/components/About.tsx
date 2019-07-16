@@ -89,7 +89,7 @@ export default function AboutProps(props: AboutProps) {
           }}
         >
           <Paper
-            style={{ width: "70%", backgroundColor: "rgba(255,255,255,0.8)" }}
+            style={{ width: "90%", backgroundColor: "rgba(255,255,255,0.8)" }}
           >
             <Paper style={{ padding: 20, backgroundColor: "transparent" }}>
               <Typography component="p">

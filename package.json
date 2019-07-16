@@ -12,6 +12,7 @@
     "cheerio": "^1.0.0-rc.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-markdown": "^4.1.0",
     "react-scripts": "3.0.1",
     "typescript": "3.5.3"
   },

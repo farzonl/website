@@ -2,24 +2,25 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import HideAppBar from "./components/AppBar";
 import AdvancedGridList, { GridItem } from "./components/ItemGrid";
-import { GetRepos, GetProfile, GetConfiguration } from "./requests/Github";
+import { GetRepos, GetProfile, GetConfiguration, GetReadMe } from "./requests/Github";
 import { GithubProfileResponse, GithubConfigResp } from "./types/Github";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import About from "./components/About";
-
+import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog"
 const App: React.FC = () => {
   const [] = useState("");
   const [repos, setRepos] = useState<GridItem[]>([]);
+  const [refItem, setRefItem] = useState<ReferenceItem>()
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
-
+  const userName = "afshawnlotfi"
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   useEffect(() => {
-    const getReadMe = async () => {
-      const configResp = await GetConfiguration("afshawnlotfi");
-      const repoResp = await GetRepos("afshawnlotfi");
-      const profileResp = await GetProfile("afshawnlotfi");
+    const getContents = async () => {
+      const configResp = await GetConfiguration(userName);
+      const repoResp = await GetRepos(userName);
+      const profileResp = await GetProfile(userName);
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
 
@@ -43,7 +44,16 @@ const App: React.FC = () => {
               },
 
               itemButtonAction: () => {
-                window.location.href = repo.html_url;
+                const asyncFunc = async () => {
+                  const markdown = await GetReadMe(userName, repo.name)
+                  setRefItem({
+                    type : "repo",
+                    name : repo.name,
+                    body : markdown,
+                    referenceUrl : repo.html_url
+                  })
+                }
+                asyncFunc()
               },
               avatarUrl: repo.owner.avatar_url,
               subtitle: new Date(repo.updated_at).toDateString(),
@@ -53,7 +63,7 @@ const App: React.FC = () => {
           })
       );
     };
-    getReadMe();
+    getContents();
   }, []);
   return (
     <HideAppBar
@@ -62,10 +72,13 @@ const App: React.FC = () => {
         { title: "About" },
         { title: "Skills" },
         { title: "Projects" },
+        { title: "Papers" },
         { title: "Resume" }
       ]}
     >
       <div>
+      <FullScreenDialog referenceItem={refItem}></FullScreenDialog>
+
         <About profile={profile} config={config}/>
 
         <Section
@@ -95,9 +108,42 @@ const App: React.FC = () => {
         >
           <AdvancedGridList gridItems={repos} />
         </Section>
+
+
+        <Section
+          id="Papers"
+          sectionTitle="Technical Papers"
+          subtitleAfter={false}
+          sectionDescription="Here are some featured technical papers of mine"
+        >
+            <AdvancedGridList gridItems={(config) ? (config.TechnicalPapers.map((paper) => {
+              return {
+                badgeName: paper.tag,
+  
+                itemButtonAction: () => {
+                  const asyncFunc = async () => {
+                    setRefItem({
+                      type : "pdf",
+                      name : paper.name,
+                      referenceUrl : paper.url
+                    })
+                  }
+                  asyncFunc()
+                },
+                avatarUrl: (profile) ? profile.avatar_url : "",
+                subtitle: "",
+                title: paper.name,
+                body: paper.description
+              };
+            })) : [] } />
+        </Section>
+
+
+
       </div>
     </HideAppBar>
   );
 };
 
 export default App;
+          // {/* <ItemGridList /> */}

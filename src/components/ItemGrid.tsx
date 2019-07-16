@@ -23,8 +23,8 @@ export interface GridItem{
   badgeName : string
   subtitle : string
   avatarUrl : string
-  likeCount : number
-  likeButtonAction : () => void
+  likeCount? : number
+  likeButtonAction? : () => void
   itemButtonAction : () => void
 
 }
