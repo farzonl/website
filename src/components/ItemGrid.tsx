@@ -21,6 +21,7 @@ export interface GridItem{
   title : string
   body : string
   img : string
+  badgeName : string
   subtitle : string
   avatarUrl : string
   likeCount : number

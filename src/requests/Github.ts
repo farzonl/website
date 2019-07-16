@@ -1,5 +1,14 @@
-import { GithuRepoResponse } from "../types/Github";
+import { GithuRepoResponse, GithubProfileResponse } from "../types/Github";
 
+
+
+
+export const GetProfile = async (userName: string) => {
+  const response = await fetch(`
+  https://api.github.com/users/${userName}`);
+  const json = await response.json();
+  return json as GithubProfileResponse;
+};
 
 
 

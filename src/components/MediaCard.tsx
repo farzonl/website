@@ -13,6 +13,7 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share";
 import { GridItem } from "./ItemGrid";
 import { CardActionArea, Badge } from "@material-ui/core";
+import ChipList from "./ChipList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,6 +56,13 @@ export default function MediaCard(props: GridItem) {
               className={classes.avatar}
             />
           }
+          action={
+            <ChipList
+          chips={[
+            props.badgeName
+          ]}
+        />  
+          }
           title={props.title}
           subheader={props.subtitle}
         />
@@ -72,7 +80,9 @@ export default function MediaCard(props: GridItem) {
           >
             {props.body.substring(0, 125) +
               (props.body.length > 125 ? "..." : "")}
+            
           </Typography>
+
         </CardContent>
       </CardActionArea>
 
