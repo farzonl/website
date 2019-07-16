@@ -10,11 +10,9 @@ import { Button, makeStyles, Theme, createStyles } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    fragment: {
-      flexGrow: 1
-    },
     centerButtons: {
-      marginRight: theme.spacing(2)
+      display: "flex",
+      justifyContent: "center"
     }
   })
 );
@@ -24,8 +22,12 @@ interface AppBarProps {
   children: React.ReactElement;
   buttons: {
     title: string;
-    link: string;
+    onClick?: () => {};
   }[];
+
+  sideButtion: {
+    title: string;
+  };
 }
 
 function HideOnScroll(props: AppBarProps) {
@@ -50,23 +52,35 @@ HideOnScroll.propTypes = {
 };
 
 export default function HideAppBar(props: AppBarProps) {
-
+  const classes = useStyles();
   return (
     <React.Fragment>
       <CssBaseline />
       <HideOnScroll {...props}>
         <AppBar style={{ background: "rgba(0,0,0,0.5)" }}>
-          <Toolbar>
-            {props.buttons.map(button => {
-              return <Button color="inherit">{button.title}</Button>;
+          <Toolbar className={classes.centerButtons}>
+            {props.buttons.map((button, i) => {
+              return (
+                <Button
+                  color="inherit"
+                  onClick={
+                    button.onClick
+                      ? button.onClick
+                      : () => {
+                          const id = document.getElementById(button.title);
+                          return id != null ? id.scrollIntoView() : () => {};
+                        }
+                  }
+                >
+                  {button.title}
+                </Button>
+              );
             })}
           </Toolbar>
         </AppBar>
       </HideOnScroll>
       <Toolbar />
-      <Container>
-            {props.children}
-      </Container>
+      <Container>{props.children}</Container>
     </React.Fragment>
   );
 }

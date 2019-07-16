@@ -157,6 +157,7 @@ export interface GithubConfigResp {
 
 export interface About {
     Bio: string;
+    Social : {[key : string] : string}
 }
 
 export interface Skills {

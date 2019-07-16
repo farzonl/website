@@ -16,6 +16,7 @@ export interface SectionProps {
   sectionTitle : string;
   sectionDescription : string
   subtitleAfter : boolean
+  id : string
 }
 
 export default function Section(props: SectionProps) {
@@ -26,7 +27,7 @@ export default function Section(props: SectionProps) {
   </Typography>
   )
   return (
-    <div className={classes.root}>
+    <div id={props.id} className={classes.root}>
       <Typography className={classes.title} variant="h2" component="h2">
         {props.sectionTitle}
       </Typography>
