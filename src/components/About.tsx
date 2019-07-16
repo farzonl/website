@@ -46,12 +46,9 @@ export default function AboutProps(props: AboutProps) {
           src={props.profile ? props.profile.avatar_url : ""}
           style={{
             // marginTop:10,
-            minWidth: 120,
-            minHeight: 100,
-            maxWidth: 150,
-            maxHeight: 150,
-            width: "20%",
-            height: "20%"
+
+            width: 150,
+            height: 150
           }}
         />
         <div style={{ marginLeft: "2%", marginTop: "3%" }}>
@@ -59,7 +56,7 @@ export default function AboutProps(props: AboutProps) {
             I'm {props.profile ? props.profile.name : ""}
           </Typography>
 
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
             <Typography
               style={{ color: "white", paddingRight: 20 }}
               variant="subtitle1"
@@ -73,7 +70,7 @@ export default function AboutProps(props: AboutProps) {
                 (social, i) => {
                   return (
                     <IconButton key={i} className={classes.button} onClick ={() => {window.location.href = (props.config) ? props.config.About.Social[social] : ""}}>
-                      <Icon className={`ion-${(social.toLowerCase() === "mail" || social.toLowerCase() === "phone") ? "md-" : "logo-"}${social.toLowerCase()}`} />
+                      <Icon className={`ion-${(social.toLowerCase() === "mail" || social.toLowerCase() === "call") ? "md-" : "logo-"}${social.toLowerCase()}`} />
                     </IconButton>
                   );
                 }
