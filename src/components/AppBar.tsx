@@ -22,7 +22,7 @@ interface AppBarProps {
   children: React.ReactElement;
   buttons: {
     title: string;
-    onClick?: () => {};
+    onClick?: () => void;
   }[];
 
   sideButtion: {
@@ -62,6 +62,7 @@ export default function HideAppBar(props: AppBarProps) {
             {props.buttons.map((button, i) => {
               return (
                 <Button
+                  style={{width : 10, fontSize : 11}}
                   color="inherit"
                   onClick={
                     button.onClick

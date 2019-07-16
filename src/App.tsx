@@ -2,19 +2,24 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import HideAppBar from "./components/AppBar";
 import AdvancedGridList, { GridItem } from "./components/ItemGrid";
-import { GetRepos, GetProfile, GetConfiguration, GetReadMe } from "./requests/Github";
+import {
+  GetRepos,
+  GetProfile,
+  GetConfiguration,
+  GetReadMe
+} from "./requests/Github";
 import { GithubProfileResponse, GithubConfigResp } from "./types/Github";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import About from "./components/About";
-import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog"
+import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
 const App: React.FC = () => {
   const [] = useState("");
   const [repos, setRepos] = useState<GridItem[]>([]);
-  const [refItem, setRefItem] = useState<ReferenceItem>()
+  const [refItem, setRefItem] = useState<ReferenceItem>();
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
-  const userName = "afshawnlotfi"
+  const userName = "afshawnlotfi";
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   useEffect(() => {
     const getContents = async () => {
@@ -45,15 +50,15 @@ const App: React.FC = () => {
 
               itemButtonAction: () => {
                 const asyncFunc = async () => {
-                  const markdown = await GetReadMe(userName, repo.name)
+                  const markdown = await GetReadMe(userName, repo.name);
                   setRefItem({
-                    type : "repo",
-                    name : repo.name,
-                    body : markdown,
-                    referenceUrl : repo.html_url
-                  })
-                }
-                asyncFunc()
+                    type: "repo",
+                    name: repo.name,
+                    body: markdown,
+                    referenceUrl: repo.html_url
+                  });
+                };
+                asyncFunc();
               },
               avatarUrl: repo.owner.avatar_url,
               subtitle: new Date(repo.updated_at).toDateString(),
@@ -70,16 +75,38 @@ const App: React.FC = () => {
       sideButtion={{ title: "Skills" }}
       buttons={[
         { title: "About" },
+        { title: "Goals" },
         { title: "Skills" },
         { title: "Projects" },
         { title: "Papers" },
-        { title: "Resume" }
+
+        {
+          title: "Resume",
+          onClick: () => {
+            setRefItem({
+              type: "pdf",
+              name: "Resume",
+              referenceUrl: `https://github.com/${userName}/website-config/raw/master/Resume.pdf`
+            });
+          }
+        }
       ]}
     >
       <div>
-      <FullScreenDialog referenceItem={refItem}></FullScreenDialog>
+        <FullScreenDialog referenceItem={refItem} />
 
-        <About profile={profile} config={config}/>
+        <About profile={profile} config={config} />
+
+        {config ? (
+          <Section
+            id="Goals"
+            sectionTitle="Career Goals"
+            subtitleAfter={true}
+            sectionDescription={config.CareerGoals}
+          >
+            <div />
+          </Section>
+        ) : null}
 
         <Section
           id="Skills"
@@ -109,41 +136,43 @@ const App: React.FC = () => {
           <AdvancedGridList gridItems={repos} />
         </Section>
 
-
         <Section
           id="Papers"
           sectionTitle="Technical Papers"
           subtitleAfter={false}
           sectionDescription="Here are some featured technical papers of mine"
         >
-            <AdvancedGridList gridItems={(config) ? (config.TechnicalPapers.map((paper) => {
-              return {
-                badgeName: paper.tag,
-  
-                itemButtonAction: () => {
-                  const asyncFunc = async () => {
-                    setRefItem({
-                      type : "pdf",
-                      name : paper.name,
-                      referenceUrl : paper.url
-                    })
-                  }
-                  asyncFunc()
-                },
-                avatarUrl: (profile) ? profile.avatar_url : "",
-                subtitle: "",
-                title: paper.name,
-                body: paper.description
-              };
-            })) : [] } />
+          <AdvancedGridList
+            gridItems={
+              config
+                ? config.TechnicalPapers.map(paper => {
+                    return {
+                      badgeName: paper.tag,
+
+                      itemButtonAction: () => {
+                        const asyncFunc = async () => {
+                          setRefItem({
+                            type: "pdf",
+                            name: paper.name,
+                            referenceUrl: paper.url
+                          });
+                        };
+                        asyncFunc();
+                      },
+                      avatarUrl: profile ? profile.avatar_url : "",
+                      subtitle: "",
+                      title: paper.name,
+                      body: paper.description
+                    };
+                  })
+                : []
+            }
+          />
         </Section>
-
-
-
       </div>
     </HideAppBar>
   );
 };
 
 export default App;
-          // {/* <ItemGridList /> */}
+// {/* <ItemGridList /> */}

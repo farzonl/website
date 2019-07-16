@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     referenceView: {
       width: "100vw",
-      height: "100vh"
+      height: "95vh"
     },
 
     title: {
@@ -106,7 +106,7 @@ export default function FullScreenDialog(props: FullScreenDialogProps) {
         <div className={classes.referenceView} style={{}}>
           {props.referenceItem ? (
             props.referenceItem.type === "repo" ? (
-              <Paper className={classes.markdown} style={{ padding: "5%" }}>
+              <div className={classes.markdown} style={{ padding: "5%" }}>
                 <ReactMarkdown
                   source={
                     props.referenceItem
@@ -115,7 +115,7 @@ export default function FullScreenDialog(props: FullScreenDialogProps) {
                   }
                   escapeHtml={false}
                 />
-              </Paper>
+              </div>
             ) : (
               <object
                 className={classes.referenceView}

@@ -151,6 +151,7 @@ export interface GithubConfigResp {
   About: About;
   Skills: Skills;
   TechnicalPapers: TechnicalPapers;
+  CareerGoals : string;
 }
 
 export type TechnicalPapers = {

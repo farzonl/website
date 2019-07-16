@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
+import { Icon } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,6 +34,7 @@ export default function ChipList(props : ChipListProps) {
             props.chips.map((chip,id) => {
                 return (
                     <Chip
+                    icon={<Icon style={{fontSize:15}} className={`devicon-${chip.toLowerCase().replace(/\+/g,'plus').replace(/\#/g, 'sharp')}-plain`}></Icon> }
                     key={id}
                     label={chip}
                     className={classes.chip}
