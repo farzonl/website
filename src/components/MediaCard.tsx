@@ -18,13 +18,9 @@ import ChipList from "./ChipList";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     card: {
-      backgroundColor : "rgba(255,255,255,0.8)",
+      backgroundColor: "rgba(255,255,255,0.8)",
       width: 345,
-      height: 400
-    },
-    media: {
-      height: 0,
-      paddingTop: "56.25%" // 16:9
+      height: 200
     },
     expand: {
       transform: "rotate(0deg)",
@@ -56,21 +52,11 @@ export default function MediaCard(props: GridItem) {
               className={classes.avatar}
             />
           }
-          action={
-            <ChipList
-          chips={[
-            props.badgeName
-          ]}
-        />  
-          }
+          action={<ChipList chips={[props.badgeName]} />}
           title={props.title}
           subheader={props.subtitle}
         />
-        <CardMedia
-          className={classes.media}
-          image={props.img}
-          title="Paella dish"
-        />
+
         <CardContent>
           <Typography
             variant="body2"
@@ -80,9 +66,7 @@ export default function MediaCard(props: GridItem) {
           >
             {props.body.substring(0, 125) +
               (props.body.length > 125 ? "..." : "")}
-            
           </Typography>
-
         </CardContent>
       </CardActionArea>
 

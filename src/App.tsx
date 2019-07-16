@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import Button from "@material-ui/core/Button";
 import HideAppBar from "./components/AppBar";
 import AdvancedGridList, { GridItem } from "./components/ItemGrid";
-import { GetReadMe, GetRepos, GetProfile } from "./requests/Github";
-import { GithuRepoResponse, GithubProfileResponse } from "./types/Github";
-import { ListSubheader, Typography, Avatar } from "@material-ui/core";
+import { GetRepos, GetProfile, GetConfiguration } from "./requests/Github";
+import { GithubProfileResponse, GithubConfigResp } from "./types/Github";
+import { Typography, Avatar, Paper } from "@material-ui/core";
 import Section from "./components/Section";
-import ChipList from "./components/ChipList";
 import Skills from "./components/Skills";
 const App: React.FC = () => {
-  const [readMe, setReadMe] = useState("");
+  const [] = useState("");
   const [repos, setRepos] = useState<GridItem[]>([]);
   const [profile, setProfile] = useState<GithubProfileResponse>();
+  const [config, setConfig] = useState<GithubConfigResp>();
 
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   useEffect(() => {
     const getReadMe = async () => {
-      // const resp = await GetReadMe("afshawnlotfi", "circlepacker", "master");
+      const configResp = await GetConfiguration("afshawnlotfi");
       const repoResp = await GetRepos("afshawnlotfi");
       const profileResp = await GetProfile("afshawnlotfi");
-      // console.log()
+      if (configResp) setConfig(configResp);
       setProfile(profileResp);
+
       setRepos(
-        repoResp.map(repo => {
+        repoResp.filter((repo) => (repo.description) ? repo.description.startsWith("[F]") : false).map(repo => {
           const language = repo.language ? repo.language : "No Code";
           if (repo.language) {
             setLanguages(oldLangs => {
@@ -44,14 +43,13 @@ const App: React.FC = () => {
             avatarUrl: repo.owner.avatar_url,
             subtitle: new Date(repo.updated_at).toDateString(),
             title: repo.name,
-            body: repo.description ? repo.description : "",
-            img: "https://github.com/afshawnlotfi/audaticaos/raw/master/ui1.png"
+            body: repo.description ? repo.description.substring(3) : "",
           };
         })
       );
     };
     getReadMe();
-  });
+  }, []);
   return (
     <HideAppBar buttons={[{ title: "Home", link: "" }]}>
       <div>
@@ -62,12 +60,17 @@ const App: React.FC = () => {
             alt={profile ? profile.name : ""}
             src={profile ? profile.avatar_url : ""}
             style={{
-              marginTop: 0,
-              width: 300,
-              height: 300
+              // marginTop:10,
+              minWidth:120,
+              minHeight:100,
+              maxWidth:150,
+              maxHeight:150,
+              width: "20%",
+              height: "20%"
             }}
           />
-          <div>
+          <div style={{ marginLeft : "2%", marginTop: "3%" }}>
+
           <Typography style={{ color: "white" }} variant="h3" component="h2">
             I'm {(profile ? profile.name : "")}
           </Typography>
@@ -80,6 +83,16 @@ const App: React.FC = () => {
 
         </div>
 
+        {(config) ? (<div style={{ display: "flex", justifyContent: "center", paddingTop: 10 }}>
+          <Paper style={{  width : "70%", backgroundColor: "rgba(255,255,255,0.8)" }}>
+            <Paper style={{ padding: 20, backgroundColor: "transparent" }}>
+              <Typography component="p">
+                {config ? config.About.Bio : ""}
+              </Typography>
+            </Paper>
+          </Paper>
+        </div>) : config}
+
         <Section
           sectionTitle="Skills"
           subtitleAfter={true}
@@ -87,9 +100,13 @@ const App: React.FC = () => {
         >
           <div>
             <Skills
-              programmingLangues={Array.from(languages)}
-              frameworks={["hello"]}
-              tools={["hello2"]}
+              programmingLangues={
+                config
+                  ? [...Array.from(languages), ...config.Skills.Languages]
+                  : Array.from(languages)
+              }
+              frameworks={config ? config.Skills.Frameworks : []}
+              tools={config ? config.Skills.Tools : []}
             />
           </div>
         </Section>

@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface GridItem{
   title : string
   body : string
-  img : string
   badgeName : string
   subtitle : string
   avatarUrl : string

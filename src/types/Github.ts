@@ -147,3 +147,20 @@ export interface GithubProfileResponse {
     created_at:          Date;
     updated_at:          Date;
 }
+
+
+
+export interface GithubConfigResp {
+    About:  About;
+    Skills: Skills;
+}
+
+export interface About {
+    Bio: string;
+}
+
+export interface Skills {
+    Languages:  any[];
+    Frameworks: string[];
+    Tools:      string[];
+}
