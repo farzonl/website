@@ -14,7 +14,6 @@ import Skills from "./components/Skills";
 import About from "./components/About";
 import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
 const App: React.FC = () => {
-  const [] = useState("");
   const [repos, setRepos] = useState<GridItem[]>([]);
   const [refItem, setRefItem] = useState<ReferenceItem>();
   const [profile, setProfile] = useState<GithubProfileResponse>();

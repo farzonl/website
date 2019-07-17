@@ -10,7 +10,6 @@ import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
 import { TransitionProps } from "@material-ui/core/transitions";
 import ReactMarkdown from "react-markdown";
-import { Paper } from "@material-ui/core";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
@@ -98,12 +97,12 @@ export default function FullScreenDialog(props: FullScreenDialogProps) {
                   : "";
               }}
             >
-              Go to {props.referenceItem ? props.referenceItem.name : "No Name"}
+              Go to
             </Button>
           </Toolbar>
         </AppBar>
 
-        <div className={classes.referenceView} style={{}}>
+        <div className={classes.referenceView} style={{overflowX:"hidden"}}>
           {props.referenceItem ? (
             props.referenceItem.type === "repo" ? (
               <div className={classes.markdown} style={{ padding: "5%" }}>

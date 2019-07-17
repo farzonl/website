@@ -10,7 +10,6 @@ import {
   Icon
 } from "@material-ui/core";
 import { GithubProfileResponse, GithubConfigResp } from "../types/Github";
-import DeleteIcon from "@material-ui/icons/Delete";
 
 export interface AboutProps {
   profile: GithubProfileResponse | undefined;

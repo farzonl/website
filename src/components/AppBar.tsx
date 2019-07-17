@@ -62,6 +62,7 @@ export default function HideAppBar(props: AppBarProps) {
             {props.buttons.map((button, i) => {
               return (
                 <Button
+                  key={i}
                   style={{width : 10, fontSize : 11}}
                   color="inherit"
                   onClick={
