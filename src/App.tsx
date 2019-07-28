@@ -6,20 +6,37 @@ import {
   GetRepos,
   GetProfile,
   GetConfiguration,
-  GetReadMe
+  GetReadMe,
+  GetJSONFromUrl
 } from "./requests/Github";
-import { GithubProfileResponse, GithubConfigResp } from "./types/Github";
+import {GithubProfileResponse, GithubConfigResp } from "./types/Github";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import About from "./components/About";
 import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
+
+
 const App: React.FC = () => {
   const [repos, setRepos] = useState<GridItem[]>([]);
   const [refItem, setRefItem] = useState<ReferenceItem>();
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
-  const userName = "afshawnlotfi";
+  const [selectedLanguage, setSelectedLanguage] = useState<string>();
+  const [langUnset, setlangUnset] = useState<boolean>()
+  const userName = "farzonl";
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
+  const [lineNumbers, setLineNumbers] = useState<{[key : string] : number}>({})
+
+  const updateSelectedLanguage = (newSelectedLanguage : string) => {
+
+    if(selectedLanguage === newSelectedLanguage) {
+      setSelectedLanguage('');
+      return;
+    }
+
+    setSelectedLanguage(newSelectedLanguage);
+  }
+
   useEffect(() => {
     const getContents = async () => {
       const configResp = await GetConfiguration(userName);
@@ -27,12 +44,31 @@ const App: React.FC = () => {
       const profileResp = await GetProfile(userName);
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
+      const langPromises = repoResp.map(repo => GetJSONFromUrl(repo.languages_url));
+      let languageLineCount:{[key : string]: number} = {};
+      Promise.all(langPromises).then(results => {// Handle results
+        results.forEach((langObj) =>{
+          let keyArr = Object.keys(langObj);
+          keyArr.forEach((language) =>{
+            languageLineCount[language] = 0;
+          });
+          keyArr.forEach((language) =>{
+            languageLineCount[language] += langObj[language];
+          });
+        });
+        console.log(languageLineCount);
+        setLineNumbers(languageLineCount)
+
+      }).catch(e => {
+        console.error(e);
+      });
 
       setRepos(
-        repoResp
-          .filter(repo =>
-            repo.description ? repo.description.startsWith("[F]") : false
-          )
+        repoResp.filter(repo => !repo.fork)
+        .sort((repo1, repo2) => { 
+          return (repo1.stargazers_count + repo1.watchers_count + repo1.forks_count) -
+                 (repo2.stargazers_count + repo2.watchers_count + repo2.forks_count);
+          }).reverse()
           .map(repo => {
             const language = repo.language ? repo.language : "No Code";
             if (repo.language) {
@@ -74,7 +110,6 @@ const App: React.FC = () => {
       sideButtion={{ title: "Skills" }}
       buttons={[
         { title: "About" },
-        { title: "Goals" },
         { title: "Skills" },
         { title: "Projects" },
         { title: "Papers" },
@@ -85,7 +120,7 @@ const App: React.FC = () => {
             setRefItem({
               type: "pdf",
               name: "Resume",
-              referenceUrl: `https://github.com/${userName}/website-config/raw/master/Resume.pdf`
+              referenceUrl: `${config ? config.Resume: ''}`
             });
           }
         }
@@ -95,18 +130,6 @@ const App: React.FC = () => {
         <FullScreenDialog referenceItem={refItem} />
 
         <About profile={profile} config={config} />
-
-        {config ? (
-          <Section
-            id="Goals"
-            sectionTitle="Career Goals"
-            subtitleAfter={true}
-            sectionDescription={config.CareerGoals}
-          >
-            <div />
-          </Section>
-        ) : null}
-
         <Section
           id="Skills"
           sectionTitle="Skills"
@@ -115,12 +138,15 @@ const App: React.FC = () => {
         >
           <div>
             <Skills
+              lineNumbers={lineNumbers}
+              selectedLanguageUpdate={updateSelectedLanguage}
               programmingLangues={
                 config
                   ? [...Array.from(languages), ...config.Skills.Languages]
                   : Array.from(languages)
               }
               frameworks={config ? config.Skills.Frameworks : []}
+              interests={config ? config.Skills.Interests : []}
               tools={config ? config.Skills.Tools : []}
             />
           </div>
@@ -132,7 +158,13 @@ const App: React.FC = () => {
           subtitleAfter={false}
           sectionDescription="Here are some featured personal projects of mine"
         >
-          <AdvancedGridList gridItems={repos} />
+          <AdvancedGridList gridItems={repos.filter((repo) => {
+          if (selectedLanguage){
+            return (repo.badgeName === selectedLanguage) //If selected is is same language
+          }else{
+            return true // Nothing has been selected
+          }
+        })  } />
         </Section>
 
         <Section
@@ -145,6 +177,39 @@ const App: React.FC = () => {
             gridItems={
               config
                 ? config.TechnicalPapers.map(paper => {
+                    return {
+                      badgeName: paper.tag,
+
+                      itemButtonAction: () => {
+                        const asyncFunc = async () => {
+                          setRefItem({
+                            type: "pdf",
+                            name: paper.name,
+                            referenceUrl: paper.url
+                          });
+                        };
+                        asyncFunc();
+                      },
+                      avatarUrl: profile ? profile.avatar_url : "",
+                      subtitle: "",
+                      title: paper.name,
+                      body: paper.description
+                    };
+                  })
+                : []
+            }
+          />
+        </Section>
+        <Section
+          id="Posters"
+          sectionTitle="Technical Posters"
+          subtitleAfter={false}
+          sectionDescription="Here are some featured posters presentations of mine"
+        >
+          <AdvancedGridList
+            gridItems={
+              config
+                ? config.Posters.map(paper => {
                     return {
                       badgeName: paper.tag,
 

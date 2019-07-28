@@ -8,13 +8,13 @@ import {
   withStyles,
   FormControlLabel
 } from "@material-ui/core";
-import { purple } from "@material-ui/core/colors";
+import { blue } from "@material-ui/core/colors";
 
 const PurpleCheckbox = withStyles({
   root: {
-    color: purple[100],
+    color: blue[100],
     "&$checked": {
-      color: purple[100]
+      color: blue[100]
     }
   },
   checked: {}
@@ -31,14 +31,18 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface SkillsProps {
   programmingLangues: string[];
+  lineNumbers : {[key : string] : number};
   frameworks: string[];
+  interests: string[];
   tools: string[];
+  selectedLanguageUpdate : (selectedLanguage : string) => void
 }
 
 export default function Skills(props: SkillsProps) {
   const [state, setState] = useState({
     progLangs: true,
     frameworks: true,
+    interests: true,
     tools: true
   });
 
@@ -78,6 +82,17 @@ export default function Skills(props: SkillsProps) {
         <FormControlLabel
           control={
             <PurpleCheckbox
+              checked={state.interests}
+              onChange={handleChange("interests")}
+              value="interests"
+            />
+          }
+          label="Interests"
+        />
+
+        <FormControlLabel
+          control={
+            <PurpleCheckbox
               checked={state.tools}
               onChange={handleChange("tools")}
               value="tools"
@@ -89,9 +104,12 @@ export default function Skills(props: SkillsProps) {
 
       <div>
         <ChipList
+          additionalTitle={props.lineNumbers}
+          onClick={props.selectedLanguageUpdate}
           chips={[
             ...((state.progLangs) ? props.programmingLangues : []),
             ...((state.frameworks) ? props.frameworks : []),
+            ...((state.interests) ? props.interests : []),
             ...((state.tools) ? props.tools : []),
           ]}
         />

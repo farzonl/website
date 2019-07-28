@@ -151,7 +151,8 @@ export interface GithubConfigResp {
   About: About;
   Skills: Skills;
   TechnicalPapers: TechnicalPapers;
-  CareerGoals : string;
+  Posters: TechnicalPapers;
+  Resume : string;
 }
 
 export type TechnicalPapers = {
@@ -169,5 +170,6 @@ export interface About {
 export interface Skills {
   Languages: any[];
   Frameworks: string[];
+  Interests : string[];
   Tools: string[];
 }

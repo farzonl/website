@@ -40,9 +40,15 @@ export const GetReadMe = async (
 
 
 export const GetRepos = async (userName: string) => {
-  const response = await fetch(`https://api.github.com/users/${userName}/repos`);
+  const response = await fetch(`https://api.github.com/users/${userName}/repos?per_page=100`);
   const json = await response.json();
+
   return json as GithuRepoResponse;
 };
 
+export const GetJSONFromUrl = async (url : string) => {
+  const response = await fetch(url);
+  const json = await response.json();
+  return json;
+};
 
