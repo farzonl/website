@@ -40,7 +40,15 @@ export const GetReadMe = async (
 
 
 export const GetRepos = async (userName: string) => {
-  const response = await fetch(`https://api.github.com/users/${userName}/repos?per_page=100`);
+  const response = await fetch(`https://api.github.com/users/${userName}/repos?per_page=100`, {
+
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept' : "application/vnd.github.mercy-preview+json"
+  },
+
+
+  });
   const json = await response.json();
 
   return json as GithuRepoResponse;

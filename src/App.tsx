@@ -9,12 +9,16 @@ import {
   GetReadMe,
   GetJSONFromUrl
 } from "./requests/Github";
-import {GithubProfileResponse, GithubConfigResp } from "./types/Github";
+import {
+  GithubProfileResponse,
+  GithubConfigResp,
+  GithubRepoItem,
+  AdditionalSectionsType
+} from "./types/Github";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import About from "./components/About";
 import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
-
 
 const App: React.FC = () => {
   const [repos, setRepos] = useState<GridItem[]>([]);
@@ -22,54 +26,95 @@ const App: React.FC = () => {
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
-  const [langUnset, setlangUnset] = useState<boolean>()
-  const userName = "farzonl";
+  const userName = "afshawnlotfi";
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
-  const [lineNumbers, setLineNumbers] = useState<{[key : string] : number}>({})
+  const [lineNumbers, setLineNumbers] = useState<{ [key: string]: number }>({});
+  const [topSections, setTopSections] = useState<AdditionalSectionsType[]>([]);
+  const [bottomSections, setBottomSections] = useState<
+    AdditionalSectionsType[]
+  >([]);
 
-  const updateSelectedLanguage = (newSelectedLanguage : string) => {
-
-    if(selectedLanguage === newSelectedLanguage) {
-      setSelectedLanguage('');
+  const updateSelectedLanguage = (newSelectedLanguage: string) => {
+    if (selectedLanguage === newSelectedLanguage) {
+      setSelectedLanguage("");
       return;
     }
 
     setSelectedLanguage(newSelectedLanguage);
-  }
+  };
 
   useEffect(() => {
+    const topSections =
+      config && config.AdditionalSections
+        ? config.AdditionalSections.filter(
+            section => section.orientation === "top"
+          )
+        : [];
+    const bottomSections =
+      config && config.AdditionalSections
+        ? config.AdditionalSections.filter(
+            section => section.orientation === "bottom"
+          )
+        : [];
+    setTopSections(topSections);
+    setBottomSections(bottomSections);
+  }, [config]);
+
+
+  useEffect(() => {
+    let filteredRepos: GithubRepoItem[] = [];
+
+    const getRepoLangs = (repos: GithubRepoItem[]) => {
+      let languageLineCount: { [key: string]: number } = {};
+
+      const langPromises = repos.map(repo => {
+        return GetJSONFromUrl(repo.languages_url) as {};
+      });
+
+      Promise.all(langPromises)
+        .then(results => {
+          // Handle results
+          results.map((langObj: { [language: string]: number }) => {
+            Object.keys(langObj).map(language => {
+              return (languageLineCount[language] = languageLineCount[language]
+                ? langObj[language] + languageLineCount[language]
+                : langObj[language]);
+            });
+          });
+          setLineNumbers(languageLineCount);
+        })
+        .catch(e => {
+          console.error(e);
+        });
+    };
+
     const getContents = async () => {
       const configResp = await GetConfiguration(userName);
       const repoResp = await GetRepos(userName);
       const profileResp = await GetProfile(userName);
+
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
-      const langPromises = repoResp.map(repo => GetJSONFromUrl(repo.languages_url));
-      let languageLineCount:{[key : string]: number} = {};
-      Promise.all(langPromises).then(results => {// Handle results
-        results.forEach((langObj) =>{
-          let keyArr = Object.keys(langObj);
-          keyArr.forEach((language) =>{
-            languageLineCount[language] = 0;
-          });
-          keyArr.forEach((language) =>{
-            languageLineCount[language] += langObj[language];
-          });
-        });
-        console.log(languageLineCount);
-        setLineNumbers(languageLineCount)
-
-      }).catch(e => {
-        console.error(e);
-      });
 
       setRepos(
-        repoResp.filter(repo => !repo.fork)
-        .sort((repo1, repo2) => { 
-          return (repo1.stargazers_count + repo1.watchers_count + repo1.forks_count) -
-                 (repo2.stargazers_count + repo2.watchers_count + repo2.forks_count);
-          }).reverse()
+        repoResp
+          // .filter(repo => !repo.fork)
+          .sort((repo1, repo2) => {
+            return (
+              repo1.stargazers_count +
+              repo1.watchers_count +
+              repo1.forks_count -
+              (repo2.stargazers_count +
+                repo2.watchers_count +
+                repo2.forks_count)
+            );
+          })
+          .reverse()
+          .filter(repo => {
+            return repo.topics.length > 0;
+          })
           .map(repo => {
+            filteredRepos.push(repo);
             const language = repo.language ? repo.language : "No Code";
             if (repo.language) {
               setLanguages(oldLangs => {
@@ -98,38 +143,103 @@ const App: React.FC = () => {
               avatarUrl: repo.owner.avatar_url,
               subtitle: new Date(repo.updated_at).toDateString(),
               title: repo.name,
-              body: repo.description ? repo.description.substring(3) : ""
+              body: repo.description ? repo.description : ""
             };
           })
       );
+      getRepoLangs(filteredRepos);
     };
     getContents();
   }, []);
+
+  const renderConfigItem = (section: AdditionalSectionsType) => {
+    // setBarIdObjs(oldBarIds => [
+    //   ...oldBarIds,
+    //   { title: section.barId, orientation: section.orientation }
+    // ]);
+    switch (section.type) {
+      case "collection":
+        return (
+          <Section
+            id={section.barId}
+            sectionTitle={section.name}
+            subtitleAfter={false}
+            sectionDescription={section.description}
+          >
+            <AdvancedGridList
+              gridItems={section.item.map(paper => {
+                return {
+                  badgeName: paper.tag,
+
+                  itemButtonAction: () => {
+                    const asyncFunc = async () => {
+                      setRefItem({
+                        type: "pdf",
+                        name: paper.name,
+                        referenceUrl: paper.url
+                      });
+                    };
+                    asyncFunc();
+                  },
+                  avatarUrl: profile ? profile.avatar_url : "",
+                  subtitle: "",
+                  title: paper.name,
+                  body: paper.description
+                };
+              })}
+            />
+          </Section>
+        );
+
+      case "textBlock":
+        return (
+          <Section
+            id={section.barId}
+            sectionTitle={section.name}
+            subtitleAfter={false}
+            sectionDescription={section.description}
+          >
+            <div />
+          </Section>
+        );
+    }
+  };
+
   return (
     <HideAppBar
       sideButtion={{ title: "Skills" }}
       buttons={[
-        { title: "About" },
-        { title: "Skills" },
-        { title: "Projects" },
-        { title: "Papers" },
-
-        {
-          title: "Resume",
-          onClick: () => {
-            setRefItem({
-              type: "pdf",
-              name: "Resume",
-              referenceUrl: `${config ? config.Resume: ''}`
-            });
+        ...[{ title: "About" }],
+        ...topSections.map(section => {
+          return { title: section.barId };
+        }),
+        ...[{ title: "Skills" }, { title: "Projects" }],
+        ...bottomSections.map(section => {
+          return { title: section.barId };
+        }),
+        ...[
+          {
+            title: "Resume",
+            onClick: () => {
+              setRefItem({
+                type: "pdf",
+                name: "Resume",
+                referenceUrl: `${config ? config.Resume : ""}`
+              });
+            }
           }
-        }
+        ]
       ]}
     >
       <div>
         <FullScreenDialog referenceItem={refItem} />
 
         <About profile={profile} config={config} />
+
+        {topSections.map(section => {
+          return renderConfigItem(section);
+        })}
+
         <Section
           id="Skills"
           sectionTitle="Skills"
@@ -146,7 +256,9 @@ const App: React.FC = () => {
                   : Array.from(languages)
               }
               frameworks={config ? config.Skills.Frameworks : []}
-              interests={config ? config.Skills.Interests : []}
+              interests={
+                config && config.Skills.Interests ? config.Skills.Interests : []
+              }
               tools={config ? config.Skills.Tools : []}
             />
           </div>
@@ -158,85 +270,23 @@ const App: React.FC = () => {
           subtitleAfter={false}
           sectionDescription="Here are some featured personal projects of mine"
         >
-          <AdvancedGridList gridItems={repos.filter((repo) => {
-          if (selectedLanguage){
-            return (repo.badgeName === selectedLanguage) //If selected is is same language
-          }else{
-            return true // Nothing has been selected
-          }
-        })  } />
-        </Section>
-
-        <Section
-          id="Papers"
-          sectionTitle="Technical Papers"
-          subtitleAfter={false}
-          sectionDescription="Here are some featured technical papers of mine"
-        >
           <AdvancedGridList
-            gridItems={
-              config
-                ? config.TechnicalPapers.map(paper => {
-                    return {
-                      badgeName: paper.tag,
-
-                      itemButtonAction: () => {
-                        const asyncFunc = async () => {
-                          setRefItem({
-                            type: "pdf",
-                            name: paper.name,
-                            referenceUrl: paper.url
-                          });
-                        };
-                        asyncFunc();
-                      },
-                      avatarUrl: profile ? profile.avatar_url : "",
-                      subtitle: "",
-                      title: paper.name,
-                      body: paper.description
-                    };
-                  })
-                : []
-            }
+            gridItems={repos.filter(repo => {
+              if (selectedLanguage) {
+                return repo.badgeName === selectedLanguage; //If selected is is same language
+              } else {
+                return true; // Nothing has been selected
+              }
+            })}
           />
         </Section>
-        <Section
-          id="Posters"
-          sectionTitle="Technical Posters"
-          subtitleAfter={false}
-          sectionDescription="Here are some featured posters presentations of mine"
-        >
-          <AdvancedGridList
-            gridItems={
-              config
-                ? config.Posters.map(paper => {
-                    return {
-                      badgeName: paper.tag,
 
-                      itemButtonAction: () => {
-                        const asyncFunc = async () => {
-                          setRefItem({
-                            type: "pdf",
-                            name: paper.name,
-                            referenceUrl: paper.url
-                          });
-                        };
-                        asyncFunc();
-                      },
-                      avatarUrl: profile ? profile.avatar_url : "",
-                      subtitle: "",
-                      title: paper.name,
-                      body: paper.description
-                    };
-                  })
-                : []
-            }
-          />
-        </Section>
+        {bottomSections.map(section => {
+          return renderConfigItem(section);
+        })}
       </div>
     </HideAppBar>
   );
 };
 
 export default App;
-// {/* <ItemGridList /> */}
