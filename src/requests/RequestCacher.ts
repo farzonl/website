@@ -47,7 +47,7 @@ export async function cacheFetch<T>(expiration : number , input: RequestInfo, in
 
     }else{
         const response = await urlFetch()
-        localStorage.setItem(hashId, JSON.stringify({item : response, hash : hashId, expires : Date.now() + 1000*60}))
+        localStorage.setItem(hashId, JSON.stringify({item : response, hash : hashId, expires : Date.now() + expiration}))
         return response
     }
    

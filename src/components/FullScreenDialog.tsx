@@ -92,12 +92,14 @@ export default function FullScreenDialog(props: FullScreenDialogProps) {
             <Button
               color="inherit"
               onClick={() => {
-                window.location.href = props.referenceItem
+                const url= props.referenceItem
                   ? props.referenceItem.referenceUrl
                   : "";
+                  let win = window.open(url, 'Redirecting');
+                  if (win) win.focus();
               }}
             >
-              Go to
+              {(props.referenceItem && props.referenceItem.type === "pdf") ? "Download PDF" : "Go to Github"}
             </Button>
           </Toolbar>
         </AppBar>
