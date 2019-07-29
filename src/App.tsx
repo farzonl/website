@@ -75,7 +75,7 @@ const App: React.FC = () => {
         .then(results => {
           // Handle results
           results.map((langObj: { [language: string]: number }) => {
-            Object.keys(langObj).map(language => {
+            return Object.keys(langObj).map(language => {
               return (languageLineCount[language] = languageLineCount[language]
                 ? langObj[language] + languageLineCount[language]
                 : langObj[language]);
@@ -96,63 +96,69 @@ const App: React.FC = () => {
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
 
-      setRepos(
-        repoResp
-          // .filter(repo => !repo.fork)
-          .sort((repo1, repo2) => {
-            return (
-              repo1.stargazers_count +
-              repo1.watchers_count +
-              repo1.forks_count -
-              (repo2.stargazers_count +
-                repo2.watchers_count +
-                repo2.forks_count)
-            );
-          })
-          .reverse()
-          .filter(repo => {
-            return repo.topics.length > 0;
-          })
-          .map(repo => {
-            filteredRepos.push(repo);
-            const language = repo.language ? repo.language : "No Code";
-            if (repo.language) {
-              setLanguages(oldLangs => {
-                return oldLangs.add(language);
-              });
-            }
-            return {
-              badgeName: language,
-              likeCount: repo.stargazers_count,
-              likeButtonAction: () => {
-                window.location.href = repo.html_url + "/stargazers";
-              },
+      if (repoResp){
 
-              itemButtonAction: () => {
-                const asyncFunc = async () => {
-                  const markdown = await GetReadMe(userName, repo.name);
-                  setRefItem({
-                    type: "repo",
-                    name: repo.name,
-                    body: markdown,
-                    referenceUrl: repo.html_url
-                  });
-                };
-                asyncFunc();
-              },
-              avatarUrl: repo.owner.avatar_url,
-              subtitle: new Date(repo.updated_at).toDateString(),
-              title: repo.name,
-              body: repo.description ? repo.description : ""
-            };
-          })
-      );
+        setRepos(
+          repoResp
+            // .filter(repo => !repo.fork)
+            .sort((repo1, repo2) => {
+              return (
+                repo1.stargazers_count +
+                repo1.watchers_count +
+                repo1.forks_count -
+                (repo2.stargazers_count +
+                  repo2.watchers_count +
+                  repo2.forks_count)
+              );
+            })
+            .reverse()
+            .filter(repo => {
+              return repo.topics.length > 0;
+            })
+            .map(repo => {
+              filteredRepos.push(repo);
+              const language = repo.language ? repo.language : "No Code";
+              if (repo.language) {
+                setLanguages(oldLangs => {
+                  return oldLangs.add(language);
+                });
+              }
+              return {
+                badgeName: language,
+                likeCount: repo.stargazers_count,
+                likeButtonAction: () => {
+                  window.location.href = repo.html_url + "/stargazers";
+                },
+  
+                itemButtonAction: () => {
+                  const asyncFunc = async () => {
+                    const markdown = await GetReadMe(userName, repo.name);
+                    setRefItem({
+                      type: "repo",
+                      name: repo.name,
+                      body: markdown,
+                      referenceUrl: repo.html_url
+                    });
+                  };
+                  asyncFunc();
+                },
+                avatarUrl: repo.owner.avatar_url,
+                subtitle: new Date(repo.updated_at).toDateString(),
+                title: repo.name,
+                body: repo.description ? repo.description : ""
+              };
+            })
+        );
+
+
+      }
+
       getRepoLangs(filteredRepos);
     };
     getContents();
   }, []);
 
-  const renderConfigItem = (section: AdditionalSectionsType) => {
+  const renderConfigItem = (section: AdditionalSectionsType, id : number) => {
     // setBarIdObjs(oldBarIds => [
     //   ...oldBarIds,
     //   { title: section.barId, orientation: section.orientation }
@@ -161,6 +167,7 @@ const App: React.FC = () => {
       case "collection":
         return (
           <Section
+            key={id}
             id={section.barId}
             sectionTitle={section.name}
             subtitleAfter={false}
@@ -194,6 +201,7 @@ const App: React.FC = () => {
       case "textBlock":
         return (
           <Section
+            key={id}
             id={section.barId}
             sectionTitle={section.name}
             subtitleAfter={false}
@@ -236,8 +244,8 @@ const App: React.FC = () => {
 
         <About profile={profile} config={config} />
 
-        {topSections.map(section => {
-          return renderConfigItem(section);
+        {topSections.map((section, id) => {
+          return renderConfigItem(section, id);
         })}
 
         <Section
@@ -281,8 +289,8 @@ const App: React.FC = () => {
           />
         </Section>
 
-        {bottomSections.map(section => {
-          return renderConfigItem(section);
+        {bottomSections.map((section,id) => {
+          return renderConfigItem(section, id);
         })}
       </div>
     </HideAppBar>

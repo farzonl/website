@@ -1,13 +1,12 @@
 import { GithuRepoResponse, GithubProfileResponse, GithubConfigResp } from "../types/Github";
-
+import {cacheFetch} from "./RequestCacher"
 
 
 
 export const GetProfile = async (userName: string) => {
-  const response = await fetch(`
+  return cacheFetch<GithubProfileResponse>(`
   https://api.github.com/users/${userName}`);
-  const json = await response.json();
-  return json as GithubProfileResponse;
+
 };
 
 
@@ -15,32 +14,23 @@ export const GetProfile = async (userName: string) => {
 export const GetConfiguration = async (
   userName: string,
 ) => {
-  const response = await fetch(
+  return cacheFetch<GithubConfigResp>(
     `https://raw.githubusercontent.com/${userName}/website-config/master/config.json`
   );
-  try{
-    const json = await response.json();
-    return json as GithubConfigResp
-
-  }catch(error){
-    return null
-  }
 }
 
 export const GetReadMe = async (
   userName: string,
   repo : string
 ) => {
-  const response = await fetch(
-    `https://raw.githubusercontent.com/${userName}/${repo}/master/README.md`
-  );
-  return response.text()
+  return cacheFetch<string>(
+    `https://raw.githubusercontent.com/${userName}/${repo}/master/README.md`, undefined,  true);
 
 }
 
 
 export const GetRepos = async (userName: string) => {
-  const response = await fetch(`https://api.github.com/users/${userName}/repos?per_page=100`, {
+  return cacheFetch<GithuRepoResponse>(`https://api.github.com/users/${userName}/repos?per_page=100`, {
 
     headers: {
       'Content-Type': 'application/json',
@@ -49,14 +39,9 @@ export const GetRepos = async (userName: string) => {
 
 
   });
-  const json = await response.json();
-
-  return json as GithuRepoResponse;
 };
 
 export const GetJSONFromUrl = async (url : string) => {
-  const response = await fetch(url);
-  const json = await response.json();
-  return json;
+  return cacheFetch(url)
 };
 
