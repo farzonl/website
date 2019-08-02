@@ -14,12 +14,12 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
       position: "relative",
-      background: "rgb(70,18,125)"
+      background: "rgba(0,0,255,.95)"
     },
     markdown: {
       color: "white",
       background:
-      "linear-gradient(to right, rgb(162, 0, 255) , rgb(89, 0, 255))"
+      "radial-gradient(circle, lightblue, skyblue, rgba(0,0,255,.85))"
     },
     referenceView: {
       width: "100vw",
