@@ -74,6 +74,7 @@ export interface GithubRepoItem {
   open_issues: number;
   watchers: number;
   default_branch: DefaultBranch;
+  topics : string[]
 }
 
 export enum DefaultBranch {
@@ -147,11 +148,29 @@ export interface GithubProfileResponse {
   updated_at: Date;
 }
 
+interface ConfigBaseItem {
+  name : string
+  description : string
+  orientation : "top" | "bottom"
+  barId : string
+}
+
+export interface ConfigMediaSection {
+    name : string,
+    url : string,
+    description : string,
+    tag : string
+}
+
+export type ConfigTextBlockItem = ConfigBaseItem & {type : "textBlock"}
+export type ConfigCollectionItem = ConfigBaseItem & {type : "collection", item : ConfigMediaSection[]}
+export type AdditionalSectionsType = (ConfigTextBlockItem | ConfigCollectionItem)
+
 export interface GithubConfigResp {
   About: About;
   Skills: Skills;
-  TechnicalPapers: TechnicalPapers;
-  CareerGoals : string;
+  Resume : string;
+  AdditionalSections? : AdditionalSectionsType[]
 }
 
 export type TechnicalPapers = {
@@ -169,5 +188,6 @@ export interface About {
 export interface Skills {
   Languages: any[];
   Frameworks: string[];
+  Interests : string[];
   Tools: string[];
 }

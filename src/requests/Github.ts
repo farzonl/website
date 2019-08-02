@@ -1,48 +1,48 @@
-import { GithuRepoResponse, GithubProfileResponse, GithubConfigResp } from "../types/Github";
+import {
+  GithuRepoResponse,
+  GithubProfileResponse,
+  GithubConfigResp
+} from "../types/Github";
+import { cacheFetch } from "./RequestCacher";
 
-
-
+const expirationTime = 1000 * 60 * 20;
 
 export const GetProfile = async (userName: string) => {
-  const response = await fetch(`
-  https://api.github.com/users/${userName}`);
-  const json = await response.json();
-  return json as GithubProfileResponse;
+  return cacheFetch<GithubProfileResponse>(
+    expirationTime,
+    `https://api.github.com/users/${userName}`
+  );
 };
 
-
-
-export const GetConfiguration = async (
-  userName: string,
-) => {
-  const response = await fetch(
+export const GetConfiguration = async (userName: string) => {
+  return cacheFetch<GithubConfigResp>(
+    expirationTime,
     `https://raw.githubusercontent.com/${userName}/website-config/master/config.json`
   );
-  try{
-    const json = await response.json();
-    return json as GithubConfigResp
-
-  }catch(error){
-    return null
-  }
-}
-
-export const GetReadMe = async (
-  userName: string,
-  repo : string
-) => {
-  const response = await fetch(
-    `https://raw.githubusercontent.com/${userName}/${repo}/master/README.md`
-  );
-  return response.text()
-
-}
-
-
-export const GetRepos = async (userName: string) => {
-  const response = await fetch(`https://api.github.com/users/${userName}/repos`);
-  const json = await response.json();
-  return json as GithuRepoResponse;
 };
 
+export const GetReadMe = async (userName: string, repo: string) => {
+  return cacheFetch<string>(
+    expirationTime,
+    `https://raw.githubusercontent.com/${userName}/${repo}/master/README.md`,
+    undefined,
+    true
+  );
+};
 
+export const GetRepos = async (userName: string) => {
+  return cacheFetch<GithuRepoResponse>(
+    expirationTime,
+    `https://api.github.com/users/${userName}/repos?per_page=100`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.mercy-preview+json"
+      }
+    }
+  );
+};
+
+export const GetJSONFromUrl = async (url: string) => {
+  return cacheFetch(expirationTime, url);
+};
