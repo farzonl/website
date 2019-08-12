@@ -1,3 +1,5 @@
+import { CauroselImages } from "../components/Caursel";
+
 export type GithuRepoResponse = GithubRepoItem[];
 
 export interface GithubRepoItem {
@@ -162,12 +164,19 @@ export interface ConfigMediaSection {
   tag: string;
 }
 
+export type ConfigCauroselBlockItem = ConfigBaseItem & {
+  type: "caurosel";
+  images: CauroselImages;
+};
 export type ConfigTextBlockItem = ConfigBaseItem & { type: "textBlock" };
 export type ConfigCollectionItem = ConfigBaseItem & {
   type: "collection";
   item: ConfigMediaSection[];
 };
-export type AdditionalSectionsType = ConfigTextBlockItem | ConfigCollectionItem;
+export type AdditionalSectionsType =
+  | ConfigTextBlockItem
+  | ConfigCollectionItem
+  | ConfigCauroselBlockItem;
 
 export interface GithubConfigResp {
   About: About;

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import About from "./components/About";
 import HideAppBar from "./components/AppBar";
+import CauroselComponent from "./components/Caursel";
+import CollectionComponent from "./components/Collection";
 import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
-import AdvancedGridList, { GridItem } from "./components/ItemGrid";
+import { GridItem } from "./components/ItemGrid";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import configJson from "./config.json";
@@ -174,30 +176,33 @@ const App: React.FC = () => {
             subtitleAfter={false}
             sectionDescription={section.description}
           >
-            <AdvancedGridList
-              gridItems={section.item.map(paper => {
+            <CollectionComponent
+              gridItems={section.item.map(media => {
                 return {
-                  badgeName: paper.tag,
+                  badgeName: media.tag,
 
                   itemButtonAction: () => {
                     const asyncFunc = async () => {
                       setRefItem({
                         type: "pdf",
-                        name: paper.name,
-                        referenceUrl: paper.url
+                        name: media.name,
+                        referenceUrl: media.url
                       });
                     };
                     asyncFunc();
                   },
                   avatarUrl: profile ? profile.avatar_url : "",
                   subtitle: "",
-                  title: paper.name,
-                  body: paper.description
+                  title: media.name,
+                  body: media.description
                 };
               })}
             />
           </Section>
         );
+
+      case "caurosel":
+        return <CauroselComponent images={config ? section.images : []} />;
 
       case "textBlock":
         return (
@@ -284,7 +289,7 @@ const App: React.FC = () => {
           subtitleAfter={false}
           sectionDescription="Here are some featured personal projects of mine"
         >
-          <AdvancedGridList
+          <CollectionComponent
             gridItems={repos.filter(repo => {
               if (selectedLanguage) {
                 return (
