@@ -180,6 +180,7 @@ export interface GithubConfigResp {
 export interface View {
   Theme: string;
   Title: string;
+  Foreground: { colorName: string; intensity: number };
 }
 
 export type TechnicalPapers = {

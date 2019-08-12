@@ -257,6 +257,11 @@ const App: React.FC = () => {
         >
           <div>
             <Skills
+              foreground={
+                config && config.View && config.View.Foreground
+                  ? config.View.Foreground
+                  : { colorName: "purple", intensity: 100 }
+              }
               lineNumbers={lineNumbers}
               selectedLanguageUpdate={updateSelectedLanguage}
               programmingLangues={
