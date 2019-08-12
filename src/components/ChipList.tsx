@@ -48,7 +48,7 @@ export default function ChipList(props : ChipListProps) {
                     }}
                     icon={<Icon style={{fontSize:15}} className={`devicon-${chip.toLowerCase().replace(/\+/g,'plus').replace(/#/g, 'sharp')}-plain`}></Icon> }
                     key={id}
-                    label={chip + ((props.additionalTitle && props.additionalTitle[chip] > 0) ? (` lines: ${intToString(props.additionalTitle[chip])}`) : "") }
+                    label={chip + ((props.additionalTitle && props.additionalTitle[chip] > 0) ? (` lines: ${Math.ceil(100*(props.additionalTitle[chip]/props.additionalTitle.total))}%`) : "") }
                     className={classes.chip}
                   />
                 )

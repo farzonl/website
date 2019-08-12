@@ -8,13 +8,13 @@ import {
   withStyles,
   FormControlLabel
 } from "@material-ui/core";
-import { purple } from "@material-ui/core/colors";
+import { blue } from "@material-ui/core/colors";
 
 const PurpleCheckbox = withStyles({
   root: {
-    color: purple[100],
+    color: blue[100],
     "&$checked": {
-      color: purple[100]
+      color: blue[100]
     }
   },
   checked: {}

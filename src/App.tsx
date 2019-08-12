@@ -26,7 +26,7 @@ const App: React.FC = () => {
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
-  const userName = "afshawnlotfi";
+  const userName = "farzonl";
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   const [lineNumbers, setLineNumbers] = useState<{ [key: string]: number }>({});
   const [topSections, setTopSections] = useState<AdditionalSectionsType[]>([]);
@@ -70,7 +70,6 @@ const App: React.FC = () => {
       const langPromises = repos.map(repo => {
         return GetJSONFromUrl(repo.languages_url) as {};
       });
-
       Promise.all(langPromises)
         .then(results => {
           // Handle results
@@ -81,6 +80,11 @@ const App: React.FC = () => {
                 : langObj[language]);
             });
           });
+          let total = 0;
+          Object.keys(languageLineCount).map(language => {
+            total += languageLineCount[language];
+          });
+          languageLineCount.total = total;
           setLineNumbers(languageLineCount);
         })
         .catch(e => {
@@ -100,12 +104,12 @@ const App: React.FC = () => {
 
         setRepos(
           repoResp
-            // .filter(repo => !repo.fork)
+            .filter(repo => !repo.fork)
             .sort((repo1, repo2) => {
               return (
-                repo1.stargazers_count +
+                (repo1.stargazers_count +
                 repo1.watchers_count +
-                repo1.forks_count -
+                repo1.forks_count) -
                 (repo2.stargazers_count +
                   repo2.watchers_count +
                   repo2.forks_count)
@@ -144,6 +148,7 @@ const App: React.FC = () => {
                 },
                 avatarUrl: repo.owner.avatar_url,
                 subtitle: new Date(repo.updated_at).toDateString(),
+                topics: repo.topics,
                 title: repo.name,
                 body: repo.description ? repo.description : ""
               };
@@ -281,7 +286,7 @@ const App: React.FC = () => {
           <AdvancedGridList
             gridItems={repos.filter(repo => {
               if (selectedLanguage) {
-                return repo.badgeName === selectedLanguage; //If selected is is same language
+                return (repo.topics && repo.topics.includes(selectedLanguage.replace(/\s+/g, '-').toLowerCase())) || repo.badgeName === selectedLanguage; //If selected is is same language
               } else {
                 return true; // Nothing has been selected
               }
