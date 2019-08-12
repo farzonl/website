@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
+import About from "./components/About";
 import HideAppBar from "./components/AppBar";
+import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
 import AdvancedGridList, { GridItem } from "./components/ItemGrid";
-import {
-  GetRepos,
-  GetProfile,
-  GetConfiguration,
-  GetReadMe,
-  GetJSONFromUrl
-} from "./requests/Github";
-import {
-  GithubProfileResponse,
-  GithubConfigResp,
-  GithubRepoItem,
-  AdditionalSectionsType
-} from "./types/Github";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
-import About from "./components/About";
-import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
+import configJson from "./config.json";
+import {
+  GetConfiguration,
+  GetJSONFromUrl,
+  GetProfile,
+  GetReadMe,
+  GetRepos
+} from "./requests/Github";
+import {
+  AdditionalSectionsType,
+  GithubConfigResp,
+  GithubProfileResponse,
+  GithubRepoItem
+} from "./types/Github";
 
 const App: React.FC = () => {
   const [repos, setRepos] = useState<GridItem[]>([]);
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
-  const userName = "farzonl";
+  const userName = configJson["userName"];
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   const [lineNumbers, setLineNumbers] = useState<{ [key: string]: number }>({});
   const [topSections, setTopSections] = useState<AdditionalSectionsType[]>([]);
@@ -42,6 +42,10 @@ const App: React.FC = () => {
 
     setSelectedLanguage(newSelectedLanguage);
   };
+
+  document.title = config ? config.View.Title : "";
+  //@ts-ignore
+  document.body.style = config ? config.View.Theme : "";
 
   useEffect(() => {
     const topSections =
@@ -59,7 +63,6 @@ const App: React.FC = () => {
     setTopSections(topSections);
     setBottomSections(bottomSections);
   }, [config]);
-
 
   useEffect(() => {
     let filteredRepos: GithubRepoItem[] = [];
@@ -81,7 +84,7 @@ const App: React.FC = () => {
             });
           });
           let total = 0;
-          Object.keys(languageLineCount).map(language => {
+          Object.keys(languageLineCount).forEach(language => {
             total += languageLineCount[language];
           });
           languageLineCount.total = total;
@@ -100,16 +103,15 @@ const App: React.FC = () => {
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
 
-      if (repoResp){
-
+      if (repoResp) {
         setRepos(
           repoResp
             .filter(repo => !repo.fork)
             .sort((repo1, repo2) => {
               return (
-                (repo1.stargazers_count +
+                repo1.stargazers_count +
                 repo1.watchers_count +
-                repo1.forks_count) -
+                repo1.forks_count -
                 (repo2.stargazers_count +
                   repo2.watchers_count +
                   repo2.forks_count)
@@ -133,7 +135,7 @@ const App: React.FC = () => {
                 likeButtonAction: () => {
                   window.location.href = repo.html_url + "/stargazers";
                 },
-  
+
                 itemButtonAction: () => {
                   const asyncFunc = async () => {
                     const markdown = await GetReadMe(userName, repo.name);
@@ -154,8 +156,6 @@ const App: React.FC = () => {
               };
             })
         );
-
-
       }
 
       getRepoLangs(filteredRepos);
@@ -163,11 +163,7 @@ const App: React.FC = () => {
     getContents();
   }, []);
 
-  const renderConfigItem = (section: AdditionalSectionsType, id : number) => {
-    // setBarIdObjs(oldBarIds => [
-    //   ...oldBarIds,
-    //   { title: section.barId, orientation: section.orientation }
-    // ]);
+  const renderConfigItem = (section: AdditionalSectionsType, id: number) => {
     switch (section.type) {
       case "collection":
         return (
@@ -286,7 +282,13 @@ const App: React.FC = () => {
           <AdvancedGridList
             gridItems={repos.filter(repo => {
               if (selectedLanguage) {
-                return (repo.topics && repo.topics.includes(selectedLanguage.replace(/\s+/g, '-').toLowerCase())) || repo.badgeName === selectedLanguage; //If selected is is same language
+                return (
+                  (repo.topics &&
+                    repo.topics.includes(
+                      selectedLanguage.replace(/\s+/g, "-").toLowerCase()
+                    )) ||
+                  repo.badgeName === selectedLanguage
+                ); //If selected is is same language
               } else {
                 return true; // Nothing has been selected
               }
@@ -294,7 +296,7 @@ const App: React.FC = () => {
           />
         </Section>
 
-        {bottomSections.map((section,id) => {
+        {bottomSections.map((section, id) => {
           return renderConfigItem(section, id);
         })}
       </div>
