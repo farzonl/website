@@ -8,6 +8,7 @@ import {
 } from "@material-ui/core";
 import { CheckboxProps } from "@material-ui/core/Checkbox";
 import React, { useState } from "react";
+import { ThemeProvider } from "../requests/Github";
 import ChipList from "./ChipList";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -25,7 +26,6 @@ export interface SkillsProps {
   frameworks: string[];
   interests: string[];
   tools: string[];
-  foreground: { colorName: string; intensity: number };
   selectedLanguageUpdate: (selectedLanguage: string) => void;
 }
 
@@ -50,10 +50,14 @@ export default function Skills(props: SkillsProps) {
   const CheckboxColor = withStyles({
     root: {
       color:
-        colorPallet[props.foreground.colorName][props.foreground.intensity],
+        colorPallet[ThemeProvider.foreground.colorName][
+          ThemeProvider.foreground.intensity
+        ],
       "&$checked": {
         color:
-          colorPallet[props.foreground.colorName][props.foreground.intensity]
+          colorPallet[ThemeProvider.foreground.colorName][
+            ThemeProvider.foreground.intensity
+          ]
       }
     },
     checked: {}

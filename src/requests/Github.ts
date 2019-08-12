@@ -1,9 +1,20 @@
 import {
-  GithuRepoResponse,
+  Foreground,
+  GithubConfigResp,
   GithubProfileResponse,
-  GithubConfigResp
+  GithuRepoResponse
 } from "../types/Github";
 import { cacheFetch } from "./RequestCacher";
+
+export class ThemeProvider {
+  public static theme =
+    "linear-gradient(to right, rgb(162, 0, 255), rgb(89, 0, 255))";
+  public static headerColor = "blue";
+  public static foreground: Foreground = {
+    colorName: "purple",
+    intensity: 100
+  };
+}
 
 const expirationTime = 1000 * 60 * 20;
 

@@ -186,10 +186,16 @@ export interface GithubConfigResp {
   AdditionalSections?: AdditionalSectionsType[];
 }
 
+export interface Foreground {
+  colorName: string;
+  intensity: number;
+}
+
 export interface View {
   Theme: string;
   Title: string;
-  Foreground: { colorName: string; intensity: number };
+  Foreground: Foreground;
+  HeaderColor: string;
 }
 
 export type TechnicalPapers = {

@@ -1,3 +1,4 @@
+import { CircularProgress, Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import About from "./components/About";
 import HideAppBar from "./components/AppBar";
@@ -13,7 +14,8 @@ import {
   GetJSONFromUrl,
   GetProfile,
   GetReadMe,
-  GetRepos
+  GetRepos,
+  ThemeProvider
 } from "./requests/Github";
 import {
   AdditionalSectionsType,
@@ -23,6 +25,8 @@ import {
 } from "./types/Github";
 
 const App: React.FC = () => {
+  const [finishedLoading, changeFinishedLoading] = useState(false);
+
   const [repos, setRepos] = useState<GridItem[]>([]);
   const [refItem, setRefItem] = useState<ReferenceItem>();
   const [profile, setProfile] = useState<GithubProfileResponse>();
@@ -35,7 +39,6 @@ const App: React.FC = () => {
   const [bottomSections, setBottomSections] = useState<
     AdditionalSectionsType[]
   >([]);
-
   const updateSelectedLanguage = (newSelectedLanguage: string) => {
     if (selectedLanguage === newSelectedLanguage) {
       setSelectedLanguage("");
@@ -47,7 +50,7 @@ const App: React.FC = () => {
 
   document.title = config ? config.View.Title : "";
   //@ts-ignore
-  document.body.style = config ? config.View.Theme : "";
+  document.body.style = config ? `background-image: ${config.View.Theme}` : "";
 
   useEffect(() => {
     const topSections =
@@ -64,6 +67,17 @@ const App: React.FC = () => {
         : [];
     setTopSections(topSections);
     setBottomSections(bottomSections);
+    if (config) {
+      if (config.View.Theme) {
+        ThemeProvider.theme = config.View.Theme;
+      }
+      if (config.View.Foreground) {
+        ThemeProvider.foreground = config.View.Foreground;
+      }
+      if (config.View.HeaderColor) {
+        ThemeProvider.headerColor = config.View.HeaderColor;
+      }
+    }
   }, [config]);
 
   useEffect(() => {
@@ -137,7 +151,6 @@ const App: React.FC = () => {
                 likeButtonAction: () => {
                   window.location.href = repo.html_url + "/stargazers";
                 },
-
                 itemButtonAction: () => {
                   const asyncFunc = async () => {
                     const markdown = await GetReadMe(userName, repo.name);
@@ -158,11 +171,13 @@ const App: React.FC = () => {
               };
             })
         );
+        changeFinishedLoading(true);
       }
 
       getRepoLangs(filteredRepos);
     };
     getContents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderConfigItem = (section: AdditionalSectionsType, id: number) => {
@@ -219,7 +234,7 @@ const App: React.FC = () => {
     }
   };
 
-  return (
+  return finishedLoading ? (
     <HideAppBar
       sideButtion={{ title: "Skills" }}
       buttons={[
@@ -262,23 +277,21 @@ const App: React.FC = () => {
         >
           <div>
             <Skills
-              foreground={
-                config && config.View && config.View.Foreground
-                  ? config.View.Foreground
-                  : { colorName: "purple", intensity: 100 }
-              }
               lineNumbers={lineNumbers}
               selectedLanguageUpdate={updateSelectedLanguage}
-              programmingLangues={
-                config
-                  ? [...Array.from(languages), ...config.Skills.Languages]
-                  : Array.from(languages)
+              programmingLangues={[
+                ...Array.from(languages),
+                ...(config ? config.Skills.Languages : [])
+              ]}
+              frameworks={
+                config && config.Skills.Frameworks
+                  ? config.Skills.Frameworks
+                  : []
               }
-              frameworks={config ? config.Skills.Frameworks : []}
               interests={
                 config && config.Skills.Interests ? config.Skills.Interests : []
               }
-              tools={config ? config.Skills.Tools : []}
+              tools={config && config.Skills.Tools ? config.Skills.Tools : []}
             />
           </div>
         </Section>
@@ -311,6 +324,29 @@ const App: React.FC = () => {
         })}
       </div>
     </HideAppBar>
+  ) : (
+    <div>
+      <CircularProgress
+        style={{
+          display: "block",
+          marginRight: "auto",
+          marginLeft: "auto",
+          marginTop: "20%"
+        }}
+        size="20%"
+      />
+
+      <Typography
+        style={{
+          textAlign: "center",
+          marginTop: 30
+        }}
+        variant="subtitle1"
+        component="h2"
+      >
+        One second just grabbing a few things
+      </Typography>
+    </div>
   );
 };
 
