@@ -189,6 +189,7 @@ export interface GithubConfigResp {
 
 export interface GithubSettings {
   showForkedRepos: boolean;
+  filterByTopics: boolean;
 }
 
 export interface Foreground {

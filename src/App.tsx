@@ -9,8 +9,20 @@ import { GridItem } from "./components/ItemGrid";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import configJson from "./config.json";
-import { GetConfiguration, GetJSONFromUrl, GetProfile, GetReadMe, GetRepos, ThemeProvider } from "./requests/Github";
-import { AdditionalSectionsType, GithubConfigResp, GithubProfileResponse, GithubRepoItem } from "./types/Github";
+import {
+  GetConfiguration,
+  GetJSONFromUrl,
+  GetProfile,
+  GetReadMe,
+  GetRepos,
+  ThemeProvider
+} from "./requests/Github";
+import {
+  AdditionalSectionsType,
+  GithubConfigResp,
+  GithubProfileResponse,
+  GithubRepoItem
+} from "./types/Github";
 
 const App: React.FC = () => {
   const [finishedLoading, changeFinishedLoading] = useState(false);
@@ -108,13 +120,22 @@ const App: React.FC = () => {
       setProfile(profileResp);
       console.log(config);
       if (repoResp) {
-        setRepos(
-          (configResp && configResp.Github && configResp.Github.showForkedRepos
+        const forkFiltered = (repos: GithubRepoItem[]) =>
+          configResp && configResp.Github && configResp.Github.showForkedRepos
             ? repoResp
             : repoResp.filter(repo => {
                 return !repo.fork;
+              });
+
+        const topicsFiltered = (repos: GithubRepoItem[]) =>
+          configResp && configResp.Github && configResp.Github.filterByTopics
+            ? repos.filter(repo => {
+                return repo.topics.length > 0;
               })
-          )
+            : repos;
+
+        setRepos(
+          topicsFiltered(forkFiltered(repoResp))
             .sort((repo1, repo2) => {
               return (
                 repo1.stargazers_count +
@@ -126,9 +147,7 @@ const App: React.FC = () => {
               );
             })
             .reverse()
-            .filter(repo => {
-              return repo.topics.length > 0;
-            })
+
             .map(repo => {
               filteredRepos.push(repo);
               const language = repo.language ? repo.language : "No Code";
