@@ -9,8 +9,20 @@ import { GridItem } from "./components/ItemGrid";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import configJson from "./config.json";
-import { GetConfiguration, GetJSONFromUrl, GetProfile, GetReadMe, GetRepos, ThemeProvider } from "./requests/Github";
-import { AdditionalSectionsType, GithubConfigResp, GithubProfileResponse, GithubRepoItem } from "./types/Github";
+import {
+  GetConfiguration,
+  GetJSONFromUrl,
+  GetProfile,
+  GetReadMe,
+  GetRepos,
+  ThemeProvider
+} from "./requests/Github";
+import {
+  AdditionalSectionsType,
+  GithubConfigResp,
+  GithubProfileResponse,
+  GithubRepoItem
+} from "./types/Github";
 
 const App: React.FC = () => {
   const [finishedLoading, changeFinishedLoading] = useState(false);
@@ -108,17 +120,26 @@ const App: React.FC = () => {
       setProfile(profileResp);
       console.log(config);
       if (repoResp) {
+        const nameFilter = (repos: GithubRepoItem[]) =>
+          repos.filter(repo => {
+            return !(
+              repo.name === "website-config" ||
+              repo.name.includes(".github.io") ||
+              repo.name.includes("dotfiles")
+            );
+          });
+
         const archiveFilter = (repos: GithubRepoItem[]) =>
           configResp && configResp.Github && configResp.Github.showArchived
-            ? repoResp
-            : repoResp.filter(repo => {
+            ? repos
+            : repos.filter(repo => {
                 return !repo.archived;
               });
 
         const forkFiltered = (repos: GithubRepoItem[]) =>
           configResp && configResp.Github && configResp.Github.showForkedRepos
-            ? repoResp
-            : repoResp.filter(repo => {
+            ? repos
+            : repos.filter(repo => {
                 return !repo.fork;
               });
 
@@ -130,13 +151,15 @@ const App: React.FC = () => {
             : repos;
 
         setRepos(
-          archiveFilter(topicsFiltered(forkFiltered(repoResp)))
+          nameFilter(archiveFilter(topicsFiltered(forkFiltered(repoResp))))
             .sort((repo1, repo2) => {
               return (
+                2 * repo1.topics.length +
                 repo1.stargazers_count +
                 repo1.watchers_count +
                 repo1.forks_count -
-                (repo2.stargazers_count +
+                (2 * repo2.topics.length +
+                  repo2.stargazers_count +
                   repo2.watchers_count +
                   repo2.forks_count)
               );
