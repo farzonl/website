@@ -183,7 +183,12 @@ export interface GithubConfigResp {
   Skills: Skills;
   Resume: string;
   View: View;
+  Github: GithubSettings;
   AdditionalSections?: AdditionalSectionsType[];
+}
+
+export interface GithubSettings {
+  showForkedRepos: boolean;
 }
 
 export interface Foreground {
