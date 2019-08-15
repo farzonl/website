@@ -1,39 +1,44 @@
+import { CircularProgress, Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import "./App.css";
+import About from "./components/About";
 import HideAppBar from "./components/AppBar";
-import AdvancedGridList, { GridItem } from "./components/ItemGrid";
-import {
-  GetRepos,
-  GetProfile,
-  GetConfiguration,
-  GetReadMe,
-  GetJSONFromUrl
-} from "./requests/Github";
-import {
-  GithubProfileResponse,
-  GithubConfigResp,
-  GithubRepoItem,
-  AdditionalSectionsType
-} from "./types/Github";
+import CauroselComponent from "./components/Caursel";
+import CollectionComponent from "./components/Collection";
+import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
+import { GridItem } from "./components/ItemGrid";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
-import About from "./components/About";
-import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
+import configJson from "./config.json";
+import {
+  GetConfiguration,
+  GetJSONFromUrl,
+  GetProfile,
+  GetReadMe,
+  GetRepos,
+  ThemeProvider
+} from "./requests/Github";
+import {
+  AdditionalSectionsType,
+  GithubConfigResp,
+  GithubProfileResponse,
+  GithubRepoItem
+} from "./types/Github";
 
 const App: React.FC = () => {
+  const [finishedLoading, changeFinishedLoading] = useState(false);
+
   const [repos, setRepos] = useState<GridItem[]>([]);
   const [refItem, setRefItem] = useState<ReferenceItem>();
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
-  const userName = "farzonl";
+  const userName = configJson["userName"];
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   const [lineNumbers, setLineNumbers] = useState<{ [key: string]: number }>({});
   const [topSections, setTopSections] = useState<AdditionalSectionsType[]>([]);
   const [bottomSections, setBottomSections] = useState<
     AdditionalSectionsType[]
   >([]);
-
   const updateSelectedLanguage = (newSelectedLanguage: string) => {
     if (selectedLanguage === newSelectedLanguage) {
       setSelectedLanguage("");
@@ -42,6 +47,10 @@ const App: React.FC = () => {
 
     setSelectedLanguage(newSelectedLanguage);
   };
+
+  document.title = config ? config.View.Title : "";
+  //@ts-ignore
+  document.body.style = config ? `background-image: ${config.View.Theme}` : "";
 
   useEffect(() => {
     const topSections =
@@ -58,8 +67,18 @@ const App: React.FC = () => {
         : [];
     setTopSections(topSections);
     setBottomSections(bottomSections);
+    if (config) {
+      if (config.View.Theme) {
+        ThemeProvider.theme = config.View.Theme;
+      }
+      if (config.View.Foreground) {
+        ThemeProvider.foreground = config.View.Foreground;
+      }
+      if (config.View.HeaderColor) {
+        ThemeProvider.headerColor = config.View.HeaderColor;
+      }
+    }
   }, [config]);
-
 
   useEffect(() => {
     let filteredRepos: GithubRepoItem[] = [];
@@ -80,6 +99,11 @@ const App: React.FC = () => {
                 : langObj[language]);
             });
           });
+          let total = 0;
+          Object.keys(languageLineCount).forEach(language => {
+            total += languageLineCount[language];
+          });
+          languageLineCount.total = total;
           setLineNumbers(languageLineCount);
         })
         .catch(e => {
@@ -94,26 +118,54 @@ const App: React.FC = () => {
 
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
+      console.log(config);
+      if (repoResp) {
+        const nameFilter = (repos: GithubRepoItem[]) =>
+          repos.filter(repo => {
+            return !(
+              repo.name === "website-config" ||
+              repo.name.includes(".github.io") ||
+              repo.name.includes("dotfiles")
+            );
+          });
 
-      if (repoResp){
+        const archiveFilter = (repos: GithubRepoItem[]) =>
+          configResp && configResp.Github && configResp.Github.showArchived
+            ? repos
+            : repos.filter(repo => {
+                return !repo.archived;
+              });
+
+        const forkFiltered = (repos: GithubRepoItem[]) =>
+          configResp && configResp.Github && configResp.Github.showForkedRepos
+            ? repos
+            : repos.filter(repo => {
+                return !repo.fork;
+              });
+
+        const topicsFiltered = (repos: GithubRepoItem[]) =>
+          configResp && configResp.Github && configResp.Github.filterByTopics
+            ? repos.filter(repo => {
+                return repo.topics.length > 0;
+              })
+            : repos;
 
         setRepos(
-          repoResp
-            .filter(repo => !repo.fork)
+          nameFilter(archiveFilter(topicsFiltered(forkFiltered(repoResp))))
             .sort((repo1, repo2) => {
               return (
-                (repo1.stargazers_count +
+                2 * repo1.topics.length +
+                repo1.stargazers_count +
                 repo1.watchers_count +
-                repo1.forks_count) -
-                (repo2.stargazers_count +
+                repo1.forks_count -
+                (2 * repo2.topics.length +
+                  repo2.stargazers_count +
                   repo2.watchers_count +
                   repo2.forks_count)
               );
             })
             .reverse()
-            .filter(repo => {
-              return repo.topics.length > 0;
-            })
+
             .map(repo => {
               filteredRepos.push(repo);
               const language = repo.language ? repo.language : "No Code";
@@ -128,7 +180,6 @@ const App: React.FC = () => {
                 likeButtonAction: () => {
                   window.location.href = repo.html_url + "/stargazers";
                 },
-  
                 itemButtonAction: () => {
                   const asyncFunc = async () => {
                     const markdown = await GetReadMe(userName, repo.name);
@@ -143,25 +194,22 @@ const App: React.FC = () => {
                 },
                 avatarUrl: repo.owner.avatar_url,
                 subtitle: new Date(repo.updated_at).toDateString(),
+                topics: repo.topics,
                 title: repo.name,
                 body: repo.description ? repo.description : ""
               };
             })
         );
-
-
+        changeFinishedLoading(true);
       }
 
       getRepoLangs(filteredRepos);
     };
     getContents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderConfigItem = (section: AdditionalSectionsType, id : number) => {
-    // setBarIdObjs(oldBarIds => [
-    //   ...oldBarIds,
-    //   { title: section.barId, orientation: section.orientation }
-    // ]);
+  const renderConfigItem = (section: AdditionalSectionsType, id: number) => {
     switch (section.type) {
       case "collection":
         return (
@@ -172,30 +220,33 @@ const App: React.FC = () => {
             subtitleAfter={false}
             sectionDescription={section.description}
           >
-            <AdvancedGridList
-              gridItems={section.item.map(paper => {
+            <CollectionComponent
+              gridItems={section.item.map(media => {
                 return {
-                  badgeName: paper.tag,
+                  badgeName: media.tag,
 
                   itemButtonAction: () => {
                     const asyncFunc = async () => {
                       setRefItem({
                         type: "pdf",
-                        name: paper.name,
-                        referenceUrl: paper.url
+                        name: media.name,
+                        referenceUrl: media.url
                       });
                     };
                     asyncFunc();
                   },
                   avatarUrl: profile ? profile.avatar_url : "",
                   subtitle: "",
-                  title: paper.name,
-                  body: paper.description
+                  title: media.name,
+                  body: media.description
                 };
               })}
             />
           </Section>
         );
+
+      case "caurosel":
+        return <CauroselComponent images={config ? section.images : []} />;
 
       case "textBlock":
         return (
@@ -212,7 +263,7 @@ const App: React.FC = () => {
     }
   };
 
-  return (
+  return finishedLoading ? (
     <HideAppBar
       sideButtion={{ title: "Skills" }}
       buttons={[
@@ -257,16 +308,19 @@ const App: React.FC = () => {
             <Skills
               lineNumbers={lineNumbers}
               selectedLanguageUpdate={updateSelectedLanguage}
-              programmingLangues={
-                config
-                  ? [...Array.from(languages), ...config.Skills.Languages]
-                  : Array.from(languages)
+              programmingLangues={[
+                ...Array.from(languages),
+                ...(config ? config.Skills.Languages : [])
+              ]}
+              frameworks={
+                config && config.Skills.Frameworks
+                  ? config.Skills.Frameworks
+                  : []
               }
-              frameworks={config ? config.Skills.Frameworks : []}
               interests={
                 config && config.Skills.Interests ? config.Skills.Interests : []
               }
-              tools={config ? config.Skills.Tools : []}
+              tools={config && config.Skills.Tools ? config.Skills.Tools : []}
             />
           </div>
         </Section>
@@ -277,10 +331,16 @@ const App: React.FC = () => {
           subtitleAfter={false}
           sectionDescription="Here are some featured personal projects of mine"
         >
-          <AdvancedGridList
+          <CollectionComponent
             gridItems={repos.filter(repo => {
               if (selectedLanguage) {
-                return repo.badgeName === selectedLanguage; //If selected is is same language
+                return (
+                  (repo.topics &&
+                    repo.topics.includes(
+                      selectedLanguage.replace(/\s+/g, "-").toLowerCase()
+                    )) ||
+                  repo.badgeName === selectedLanguage
+                ); //If selected is is same language
               } else {
                 return true; // Nothing has been selected
               }
@@ -288,11 +348,34 @@ const App: React.FC = () => {
           />
         </Section>
 
-        {bottomSections.map((section,id) => {
+        {bottomSections.map((section, id) => {
           return renderConfigItem(section, id);
         })}
       </div>
     </HideAppBar>
+  ) : (
+    <div>
+      <CircularProgress
+        style={{
+          display: "block",
+          marginRight: "auto",
+          marginLeft: "auto",
+          marginTop: "20%"
+        }}
+        size="20%"
+      />
+
+      <Typography
+        style={{
+          textAlign: "center",
+          marginTop: 30
+        }}
+        variant="subtitle1"
+        component="h2"
+      >
+        One second just grabbing a few things
+      </Typography>
+    </div>
   );
 };
 

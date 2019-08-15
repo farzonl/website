@@ -1,3 +1,5 @@
+import { CauroselImages } from "../components/Caursel";
+
 export type GithuRepoResponse = GithubRepoItem[];
 
 export interface GithubRepoItem {
@@ -74,7 +76,7 @@ export interface GithubRepoItem {
   open_issues: number;
   watchers: number;
   default_branch: DefaultBranch;
-  topics : string[]
+  topics: string[];
 }
 
 export enum DefaultBranch {
@@ -149,28 +151,58 @@ export interface GithubProfileResponse {
 }
 
 interface ConfigBaseItem {
-  name : string
-  description : string
-  orientation : "top" | "bottom"
-  barId : string
+  name: string;
+  description: string;
+  orientation: "top" | "bottom";
+  barId: string;
 }
 
 export interface ConfigMediaSection {
-    name : string,
-    url : string,
-    description : string,
-    tag : string
+  name: string;
+  url: string;
+  description: string;
+  tag: string;
 }
 
-export type ConfigTextBlockItem = ConfigBaseItem & {type : "textBlock"}
-export type ConfigCollectionItem = ConfigBaseItem & {type : "collection", item : ConfigMediaSection[]}
-export type AdditionalSectionsType = (ConfigTextBlockItem | ConfigCollectionItem)
+export type ConfigCauroselBlockItem = ConfigBaseItem & {
+  type: "caurosel";
+  images: CauroselImages;
+};
+export type ConfigTextBlockItem = ConfigBaseItem & { type: "textBlock" };
+export type ConfigCollectionItem = ConfigBaseItem & {
+  type: "collection";
+  item: ConfigMediaSection[];
+};
+export type AdditionalSectionsType =
+  | ConfigTextBlockItem
+  | ConfigCollectionItem
+  | ConfigCauroselBlockItem;
 
 export interface GithubConfigResp {
   About: About;
   Skills: Skills;
-  Resume : string;
-  AdditionalSections? : AdditionalSectionsType[]
+  Resume: string;
+  View: View;
+  Github: GithubSettings;
+  AdditionalSections?: AdditionalSectionsType[];
+}
+
+export interface GithubSettings {
+  showForkedRepos: boolean;
+  filterByTopics: boolean;
+  showArchived: boolean;
+}
+
+export interface Foreground {
+  colorName: string;
+  intensity: number;
+}
+
+export interface View {
+  Theme: string;
+  Title: string;
+  Foreground: Foreground;
+  HeaderColor: string;
 }
 
 export type TechnicalPapers = {
@@ -178,7 +210,7 @@ export type TechnicalPapers = {
   url: string;
   description: string;
   tag: string;
-}[]
+}[];
 
 export interface About {
   Bio: string;
@@ -188,6 +220,6 @@ export interface About {
 export interface Skills {
   Languages: any[];
   Frameworks: string[];
-  Interests : string[];
+  Interests: string[];
   Tools: string[];
 }
