@@ -4,10 +4,12 @@ import About from "./components/About";
 import HideAppBar from "./components/AppBar";
 import CauroselComponent from "./components/Caursel";
 import CollectionComponent from "./components/Collection";
+import { ContentGrid } from "./components/ContentGird";
 import FullScreenDialog, { ReferenceItem } from "./components/FullScreenDialog";
 import { GridItem } from "./components/ItemGrid";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
+import { TextBlock } from "./components/TextBlock";
 import configJson from "./config.json";
 import {
   GetConfiguration,
@@ -209,57 +211,49 @@ const App: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderConfigItem = (section: AdditionalSectionsType, id: number) => {
+  const renderConfigItem = (section: AdditionalSectionsType) => {
     switch (section.type) {
       case "collection":
         return (
-          <Section
-            key={id}
-            id={section.barId}
-            sectionTitle={section.name}
-            subtitleAfter={false}
-            sectionDescription={section.description}
-          >
-            <CollectionComponent
-              gridItems={section.item.map(media => {
-                return {
-                  badgeName: media.tag,
+          <CollectionComponent
+            gridItems={section.item.map(media => {
+              return {
+                badgeName: media.tag,
 
-                  itemButtonAction: () => {
-                    const asyncFunc = async () => {
-                      setRefItem({
-                        type: "pdf",
-                        name: media.name,
-                        referenceUrl: media.url
-                      });
-                    };
-                    asyncFunc();
-                  },
-                  avatarUrl: profile ? profile.avatar_url : "",
-                  subtitle: "",
-                  title: media.name,
-                  body: media.description
-                };
-              })}
-            />
-          </Section>
+                itemButtonAction: () => {
+                  const asyncFunc = async () => {
+                    setRefItem({
+                      type: "pdf",
+                      name: media.name,
+                      referenceUrl: media.url
+                    });
+                  };
+                  asyncFunc();
+                },
+                avatarUrl: profile ? profile.avatar_url : "",
+                subtitle: "",
+                title: media.name,
+                body: media.description
+              };
+            })}
+          />
         );
 
       case "caurosel":
         return <CauroselComponent images={config ? section.images : []} />;
 
-      case "textBlock":
+      case "contentGrid":
         return (
-          <Section
-            key={id}
-            id={section.barId}
-            sectionTitle={section.name}
-            subtitleAfter={false}
-            sectionDescription={section.description}
-          >
-            <div />
-          </Section>
+          <ContentGrid
+            direction={section.direction}
+            componentGenerator={section.items.map((section, i) => () =>
+              renderConfigItem(section)
+            )}
+          />
         );
+
+      case "textBlock":
+        return <TextBlock description={section.description} />;
     }
   };
 
@@ -295,7 +289,19 @@ const App: React.FC = () => {
         <About profile={profile} config={config} />
 
         {topSections.map((section, id) => {
-          return renderConfigItem(section, id);
+          return (
+            <Section
+              key={id}
+              id={section.barId}
+              sectionTitle={section.name}
+              subtitleAfter={false}
+              sectionDescription={
+                section.type === "textBlock" ? "" : section.description
+              }
+            >
+              {renderConfigItem(section)}
+            </Section>
+          );
         })}
 
         <Section
@@ -349,7 +355,17 @@ const App: React.FC = () => {
         </Section>
 
         {bottomSections.map((section, id) => {
-          return renderConfigItem(section, id);
+          return (
+            <Section
+              key={id}
+              id={section.barId}
+              sectionTitle={section.name}
+              subtitleAfter={false}
+              sectionDescription={section.description}
+            >
+              {renderConfigItem(section)}
+            </Section>
+          );
         })}
       </div>
     </HideAppBar>

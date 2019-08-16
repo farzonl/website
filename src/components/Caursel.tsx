@@ -1,37 +1,25 @@
-import Button from "@material-ui/core/Button";
-import MobileStepper from "@material-ui/core/MobileStepper";
-import Paper from "@material-ui/core/Paper";
+import { Button, MobileStepper, Paper, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
-
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    paddingTop: 30,
-    maxWidth: 500,
-    minWidth: 300,
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-    width: "50%",
-    flexGrow: 1
-  },
   header: {
     display: "flex",
     alignItems: "center",
     height: 50,
+    maxWidth: 500,
     paddingLeft: theme.spacing(4),
     backgroundColor: theme.palette.background.default
   },
   img: {
-    height: 255,
     display: "block",
+
+    height: 255,
     maxWidth: 500,
     overflow: "hidden",
     width: "100%"
@@ -67,7 +55,7 @@ const CauroselComponent = ({ images }: CauroselComponentProps) => {
   }
 
   return (
-    <div className={classes.root}>
+    <div>
       <Paper
         style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
         square
@@ -95,7 +83,7 @@ const CauroselComponent = ({ images }: CauroselComponentProps) => {
         ))}
       </AutoPlaySwipeableViews>
       <MobileStepper
-        style={{ backgroundColor: "rgba(255,255,255,0.7)" }}
+        style={{ backgroundColor: "rgba(255,255,255,0.7)", maxWidth: 500 }}
         steps={maxSteps}
         position="static"
         variant="text"
@@ -128,5 +116,4 @@ const CauroselComponent = ({ images }: CauroselComponentProps) => {
     </div>
   );
 };
-
 export default CauroselComponent;
