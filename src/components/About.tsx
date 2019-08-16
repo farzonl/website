@@ -1,15 +1,15 @@
-import React from "react";
 import {
   Avatar,
-  Typography,
+  createStyles,
+  Icon,
   IconButton,
-  Paper,
   makeStyles,
   Theme,
-  createStyles,
-  Icon
+  Typography
 } from "@material-ui/core";
-import { GithubProfileResponse, GithubConfigResp } from "../types/Github";
+import React from "react";
+import { GithubConfigResp, GithubProfileResponse } from "../types/Github";
+import { TextBlock } from "./TextBlock";
 
 export interface AboutProps {
   profile: GithubProfileResponse | undefined;
@@ -55,7 +55,13 @@ export default function AboutProps(props: AboutProps) {
             I'm {props.profile ? props.profile.name : ""}
           </Typography>
 
-          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              flexWrap: "wrap"
+            }}
+          >
             <Typography
               style={{ color: "white", paddingRight: 20 }}
               variant="subtitle1"
@@ -68,8 +74,23 @@ export default function AboutProps(props: AboutProps) {
               {Object.keys(props.config ? props.config.About.Social : {}).map(
                 (social, i) => {
                   return (
-                    <IconButton key={i} className={classes.button} onClick ={() => {window.location.href = (props.config) ? props.config.About.Social[social] : ""}}>
-                      <Icon className={`ion-${(social.toLowerCase() === "mail" || social.toLowerCase() === "call") ? "md-" : "logo-"}${social.toLowerCase()}`} />
+                    <IconButton
+                      key={i}
+                      className={classes.button}
+                      onClick={() => {
+                        window.location.href = props.config
+                          ? props.config.About.Social[social]
+                          : "";
+                      }}
+                    >
+                      <Icon
+                        className={`ion-${
+                          social.toLowerCase() === "mail" ||
+                          social.toLowerCase() === "call"
+                            ? "md-"
+                            : "logo-"
+                        }${social.toLowerCase()}`}
+                      />
                     </IconButton>
                   );
                 }
@@ -87,15 +108,7 @@ export default function AboutProps(props: AboutProps) {
             paddingTop: 10
           }}
         >
-          <Paper
-            style={{ width: "90%", backgroundColor: "rgba(255,255,255,0.8)" }}
-          >
-            <Paper style={{ padding: 20, backgroundColor: "transparent" }}>
-              <Typography component="p">
-                {props.config ? props.config.About.Bio : ""}
-              </Typography>
-            </Paper>
-          </Paper>
+          <TextBlock description={props.config ? props.config.About.Bio : ""} />
         </div>
       ) : (
         props.config
