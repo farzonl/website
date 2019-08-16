@@ -256,17 +256,21 @@ const App: React.FC = () => {
         return <TextBlock description={section.description} />;
     }
   };
-
+  let filterFunc = el => {
+    return el.barId != undefined && el.barId != null && el.barId != "";
+  };
+  let filteredTopSec = topSections.filter(filterFunc);
+  let filteredBottomSec = bottomSections.filter(filterFunc);
   return finishedLoading ? (
     <HideAppBar
       sideButtion={{ title: "Skills" }}
       buttons={[
         ...[{ title: "About" }],
-        ...topSections.map(section => {
+        ...filteredTopSec.map(section => {
           return { title: section.barId };
         }),
         ...[{ title: "Skills" }, { title: "Projects" }],
-        ...bottomSections.map(section => {
+        ...filteredBottomSec.map(section => {
           return { title: section.barId };
         }),
         ...[
