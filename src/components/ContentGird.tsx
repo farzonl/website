@@ -37,7 +37,7 @@ export const ContentGrid = ({
       >
         {componentGenerator.map((gen, key) => (
           <div className={classes.root}>
-            <Grid key={key} item>
+            <Grid key={key} item style={{ paddingLeft: 10, paddingRight: 10 }}>
               {gen()}
             </Grid>
           </div>
