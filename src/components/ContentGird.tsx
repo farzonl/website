@@ -11,7 +11,6 @@ const useStyles = makeStyles(theme => ({
     display: "block",
     width: "50%",
     flexGrow: 1
-    
   }
 }));
 

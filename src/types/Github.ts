@@ -1,5 +1,5 @@
-import { GridDirection } from "@material-ui/core/Grid";
 import { CauroselImages } from "../components/Caursel";
+import { GridDirection } from "@material-ui/core/Grid";
 
 export type GithuRepoResponse = GithubRepoItem[];
 
@@ -165,11 +165,6 @@ export interface ConfigMediaSection {
   tag: string;
 }
 
-export type ConfigHorizontalScrollerBlockItem = ConfigBaseItem & {
-  type: "horizontalScroller";
-  items: AdditionalSectionsType[];
-};
-
 export type ConfigContentGridBlockItem = ConfigBaseItem & {
   type: "contentGrid";
   direction: GridDirection;
@@ -189,8 +184,7 @@ export type AdditionalSectionsType =
   | ConfigTextBlockItem
   | ConfigCollectionItem
   | ConfigCauroselBlockItem
-  | ConfigContentGridBlockItem
-  | ConfigHorizontalScrollerBlockItem;
+  | ConfigContentGridBlockItem;
 
 export interface GithubConfigResp {
   About: About;
