@@ -155,12 +155,16 @@ const App: React.FC = () => {
         setRepos(
           nameFilter(archiveFilter(topicsFiltered(forkFiltered(repoResp))))
             .sort((repo1, repo2) => {
+              let topicsSortWeight = 2;
+              if(configResp && configResp.Github && configResp.Github.topicsSortWeight) {
+                topicsSortWeight = configResp.Github.topicsSortWeight;
+              }
               return (
-                2 * repo1.topics.length +
+                topicsSortWeight * repo1.topics.length +
                 repo1.stargazers_count +
                 repo1.watchers_count +
                 repo1.forks_count -
-                (2 * repo2.topics.length +
+                (topicsSortWeight * repo2.topics.length +
                   repo2.stargazers_count +
                   repo2.watchers_count +
                   repo2.forks_count)

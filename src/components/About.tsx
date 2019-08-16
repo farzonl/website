@@ -108,7 +108,9 @@ export default function AboutProps(props: AboutProps) {
             paddingTop: 10
           }}
         >
-          <TextBlock description={props.config ? props.config.About.Bio : ""} />
+          {props.config && props.config.About.Bio ? (
+            <TextBlock description={props.config.About.Bio} />
+          ) : null}
         </div>
       ) : (
         props.config

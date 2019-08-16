@@ -199,6 +199,7 @@ export interface GithubSettings {
   showForkedRepos: boolean;
   filterByTopics: boolean;
   showArchived: boolean;
+  topicsSortWeight : number;
 }
 
 export interface Foreground {
