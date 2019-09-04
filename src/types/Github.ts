@@ -190,6 +190,7 @@ export interface GithubConfigResp {
   About: About;
   Skills: Skills;
   Resume: string;
+  Blog: string;
   View: View;
   Github: GithubSettings;
   AdditionalSections?: AdditionalSectionsType[];

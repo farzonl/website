@@ -261,7 +261,7 @@ const App: React.FC = () => {
     }
   };
   let filterFunc = el => {
-    return el.barId != undefined && el.barId != null && el.barId != "";
+    return el.barId !== undefined && el.barId !== null && el.barId !== "";
   };
   let filteredTopSec = topSections.filter(filterFunc);
   let filteredBottomSec = bottomSections.filter(filterFunc);
@@ -278,6 +278,14 @@ const App: React.FC = () => {
           return { title: section.barId };
         }),
         ...[
+          {
+            title: "Blog",
+            onClick: () => {
+              if (config && config.Blog) {
+                window.open(config.Blog, "_blank")
+              }
+            }
+          },
           {
             title: "Resume",
             onClick: () => {
