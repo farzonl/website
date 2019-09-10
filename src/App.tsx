@@ -137,7 +137,6 @@ const App: React.FC = () => {
       
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
-      console.log(config);
       if (repoResp) {
         const nameFilter = (repos: GithubRepoItem[]) =>
           repos.filter(repo => {
