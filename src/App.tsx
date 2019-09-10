@@ -10,7 +10,10 @@ import { GridItem } from "./components/ItemGrid";
 import Section from "./components/Section";
 import Skills from "./components/Skills";
 import { TextBlock } from "./components/TextBlock";
-import configJson from "./config.json";
+import configRaw from "./config.json";
+//@ts-ignore
+const configJson:Config = configRaw;
+
 import {
   GetConfiguration,
   GetJSONFromUrl,
@@ -34,8 +37,8 @@ const App: React.FC = () => {
   const [profile, setProfile] = useState<GithubProfileResponse>();
   const [config, setConfig] = useState<GithubConfigResp>();
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
-  const userName = configJson["userName"];
-  const groups = configJson["groups"];
+  const userName = configJson.userName;
+  const groups = configJson.groups;
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   const [lineNumbers, setLineNumbers] = useState<{ [key: string]: number }>({});
   const [topSections, setTopSections] = useState<AdditionalSectionsType[]>([]);
