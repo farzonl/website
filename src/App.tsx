@@ -12,7 +12,7 @@ import Skills from "./components/Skills";
 import { TextBlock } from "./components/TextBlock";
 import configRaw from "./config.json";
 //@ts-ignore
-const configJson:Config = configRaw;
+const configJson:{userName : string; groups : string[]} = configRaw;
 
 import {
   GetConfiguration,
