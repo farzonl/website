@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [config, setConfig] = useState<GithubConfigResp>();
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
   const userName = configJson["userName"];
+  const groups = configJson["groups"];
   const [languages, setLanguages] = useState<Set<string>>(new Set([]));
   const [lineNumbers, setLineNumbers] = useState<{ [key: string]: number }>({});
   const [topSections, setTopSections] = useState<AdditionalSectionsType[]>([]);
@@ -115,9 +116,22 @@ const App: React.FC = () => {
 
     const getContents = async () => {
       const configResp = await GetConfiguration(userName);
-      const repoResp = await GetRepos(userName);
-      const profileResp = await GetProfile(userName);
+      const userResp = await GetRepos(userName);
+      let repoResp: GithubRepoItem[] = [];
+      if (userResp) {
+        repoResp = [...userResp];
+      }
+      if (groups) {
+        groups.map(async group => {
+          const groupEval = await GetRepos(group);
+          if (groupEval) {
+            repoResp = repoResp.concat(groupEval);
+          }
+        });
+      }
 
+      const profileResp = await GetProfile(userName);
+      
       if (configResp) setConfig(configResp);
       setProfile(profileResp);
       console.log(config);
