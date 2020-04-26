@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Transition = React.forwardRef<unknown, TransitionProps>(
   function Transition(props, ref) {
+    //@ts-ignore
     return <Slide direction="up" ref={ref} {...props} />;
   }
 );

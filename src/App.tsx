@@ -11,8 +11,6 @@ import Section from "./components/Section";
 import Skills from "./components/Skills";
 import { TextBlock } from "./components/TextBlock";
 import configRaw from "./config.json";
-//@ts-ignore
-const configJson:{userName : string; groups : string[]} = configRaw;
 
 import {
   GetConfiguration,
@@ -28,6 +26,8 @@ import {
   GithubProfileResponse,
   GithubRepoItem
 } from "./types/Github";
+
+const configJson:{userName : string; groups : string[]} = configRaw;
 
 const App: React.FC = () => {
   const [finishedLoading, changeFinishedLoading] = useState(false);
@@ -125,12 +125,12 @@ const App: React.FC = () => {
         repoResp = [...userResp];
       }
       if (groups) {
-        groups.map(async group => {
+        await Promise.all(groups.map(async group => {
           const groupEval = await GetRepos(group);
           if (groupEval) {
             repoResp = repoResp.concat(groupEval);
           }
-        });
+        }));
       }
 
       const profileResp = await GetProfile(userName);
@@ -204,7 +204,7 @@ const App: React.FC = () => {
                 },
                 itemButtonAction: () => {
                   const asyncFunc = async () => {
-                    const markdown = await GetReadMe(userName, repo.name);
+                    const markdown = await GetReadMe(repo.owner.login, repo.name);
                     setRefItem({
                       type: "repo",
                       name: repo.name,
