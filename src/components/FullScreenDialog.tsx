@@ -8,7 +8,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import { TransitionProps } from "@material-ui/core/transitions";
 import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
-import React, { useEffect } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { ThemeProvider } from "../requests/Github";
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Transition = React.forwardRef<unknown, TransitionProps>(
+const Transition = forwardRef<unknown, TransitionProps>(
   function Transition(props, ref) {
     //@ts-ignore
     return <Slide direction="up" ref={ref} {...props} />;
@@ -51,7 +51,7 @@ export interface FullScreenDialogProps {
 
 export default function FullScreenDialog(props: FullScreenDialogProps) {
   const classes = useStyles({});
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (props.referenceItem) {

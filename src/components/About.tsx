@@ -7,7 +7,6 @@ import {
   Theme,
   Typography
 } from "@material-ui/core";
-import React from "react";
 import { GithubConfigResp, GithubProfileResponse } from "../types/Github";
 import { TextBlock } from "./TextBlock";
 

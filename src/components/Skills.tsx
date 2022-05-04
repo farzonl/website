@@ -7,7 +7,8 @@ import {
   withStyles
 } from "@material-ui/core";
 import { CheckboxProps } from "@material-ui/core/Checkbox";
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
 import { ThemeProvider } from "../requests/Github";
 import ChipList from "./ChipList";
 
