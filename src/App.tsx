@@ -1,6 +1,5 @@
 import { CircularProgress, Typography } from "@material-ui/core";
-import { useEffect, useState } from "react";
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import About from "./components/About";
 import HideAppBar from "./components/AppBar";
 import CauroselComponent from "./components/Caursel";
@@ -373,11 +372,13 @@ const App: React.FC = () => {
           <CollectionComponent
             gridItems={repos.filter(repo => {
               if (selectedLanguage) {
-                return (repo.topics &&
-                  repo.topics.includes(
-                    selectedLanguage.replace(/\s+/g, "-").toLowerCase()
-                  )) ||
-                repo.badgeName === selectedLanguage; //If selected is is same language
+                return (
+                  (repo.topics &&
+                    repo.topics.includes(
+                      selectedLanguage.replace(/\s+/g, "-").toLowerCase()
+                    )) ||
+                  repo.badgeName === selectedLanguage
+                ); //If selected is is same language
               } else {
                 return true; // Nothing has been selected
               }

@@ -2,7 +2,7 @@ import { Button, MobileStepper, Paper, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import { useState } from "react";
+import React from "react";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
@@ -39,7 +39,7 @@ const CauroselComponent = ({ images }: CauroselComponentProps) => {
   // @ts-ignore
   const classes = useStyles();
   const theme = useTheme();
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = images.length;
 
   function handleNext() {

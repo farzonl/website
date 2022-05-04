@@ -7,6 +7,7 @@ import {
   Theme,
   Typography
 } from "@material-ui/core";
+import React from "react";
 import { GithubConfigResp, GithubProfileResponse } from "../types/Github";
 import { TextBlock } from "./TextBlock";
 
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function AboutProps(props: AboutProps) {
+export default function AboutPropsFunc(props: AboutProps) {
   const classes = useStyles();
 
   return (

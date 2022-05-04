@@ -1,6 +1,7 @@
 import { Icon } from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import React from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
