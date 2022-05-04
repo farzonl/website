@@ -1,5 +1,5 @@
 import { Button } from "@material-ui/core";
-import { useState } from "react";
+import React, { useState } from "react";
 import AdvancedGridList, { GridItem } from "../components/ItemGrid";
 export type CollectionComponentProps = {
   gridItems: GridItem[];
