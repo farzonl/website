@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function AboutProps(props: AboutProps) {
+export default function AboutPropsFunc(props: AboutProps) {
   const classes = useStyles();
 
   return (
